@@ -1,0 +1,49 @@
+/*------------------------------------------------------------------------------
+ *  This file is part of a small RayTracer code, that is used in the course
+ *  Scientific Computing for Mechanical Engineering (4EM30) at the Department
+ *  Mechanical Engineering at Eindhoven University of Technology.
+ *
+ *  (c) 2020-2022 Joris Remmers, TU/e
+ *
+ *  Versions:
+ *  04/01/2022 | J.Remmers    | First version
+ *  
+ *----------------------------------------------------------------------------*/
+
+The models of the BMW M6 (2006) car and the wheel (which is a detail of the 
+BMW model) contain 28 different materials. In this overview, the description 
+of the various colors is given. Some colors can be selected freely, these are 
+denoted by 'x'.
+
+MatID | Color                   | Description
+--------------------------------------------------------------------------------
+0     | Matt black              | Color of the tyres 
+1     | x                       | Color of the carpaint (for you to choose, 
+      |                         |   metallic, matt, any color)
+2     | Mirror / glass          | Rear view mirrors 
+3     | Opaque glass / grey     | Color of the halogen headlights when switched off
+4     | Red, shiny, opaque      | Rearlightglass
+5     | Glass, transparant      | Headlightglass (make sure it is transparant 
+      |                         |   to see the details).
+6     | Black, shiny            | Carbon details
+7     | Black, shiny            | Carbon roof (including texture?)
+8     | Chrome                  | Car details
+9     | Metal                   | Exhaust pipes
+10    | Light emitting bright   | Halogeen lights, use a light emitting material)
+11    | Matt grey               | Various details
+12    | x                       | Leather interiour 
+13    | x                       | car ceiling (for example white fabric)
+14    | Matt grey               | Brake disk     
+15    | x                       | Wheel rims (pick a color)
+16    | x                       | Brake caliper (choose a bright color)
+17    | Metal                   | Grill
+18    | Tinted glass / Transp.  | Windscreen / windows
+19    | x                       | Background (can be asphalt, for example)
+20    | Matt black              | Car floor, wheel caps
+21    | Matt black (rubber)     | Various seals (windows, doors)
+22    | Logo black              | #000000 (offical color)
+23    | Logo blue               | #009AC9 (offical color)
+24    | Logo Silver             | #B8CAD1
+25    | Logo White              | #FFFFFF (offical color)
+26    | Logo Azure              | #031E49 (offical color)
+27    | Logo Red                | #EE0405 (offical color)

@@ -1,0 +1,40 @@
+/*------------------------------------------------------------------------------
+ *  This file is part of a small RayTracer code, that is used in the course
+ *  Scientific Computing for Mechanical Engineering (4EM30) at the Department
+ *  Mechanical Engineering at Eindhoven University of Technology.
+ *
+ *  (c) 2020-2024 Joris Remmers, TU/e
+ *
+ *  Versions:
+ *  03/02/2020 | J.Remmers    | First version
+ *  05/01/2022 | J.Remmers    | Extended installation instructions
+ *  03/03/2024 | J.Remmers    | Installation instructions for VS Code
+ *  21/02/2025 | J.Remmers    | Adding directories and files for tests
+ *----------------------------------------------------------------------------*/
+
+INSTALLATION
+============
+
+
+COMPILATION AND EXECUTION
+=========================
+
+Windows (VS Code) / Linux
+-------------------------
+
+* Open a terminal, go to this directory and run the Makefile: 
+
+  ./make 
+  
+  This will create two executables in the directory /bin: raytracer.x and test.x
+  The first executable is the actual raytracer, the second one is the unit tester.
+  
+* To render an image, go to the directory with the input file *.in and call the 
+  executable using its complete path. For example, to render the singlePin.in 
+  file in the directory /testcases/singlePin, you do:
+  
+  cd testcases/singlePin
+  
+  ../../bin/raytracer.x singlePin.in
+  
+  The image will be saved in the same directory as the input file.
