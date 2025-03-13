@@ -17,7 +17,11 @@
 
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  trace: Traces the rays through the scene
+//
+//  Arguments:
+//      globdat : Pointer to the global data
+//
 //------------------------------------------------------------------------------
 
 void trace

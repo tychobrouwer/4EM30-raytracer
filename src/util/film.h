@@ -17,7 +17,7 @@
 #include "color.h"
 
 //------------------------------------------------------------------------------
-//  TODO: COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the BMPFile type (a bitmap file)
 //------------------------------------------------------------------------------
 
 
@@ -29,7 +29,7 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//
+//  Declaration of the Pixel type (a pixel in the film)
 //------------------------------------------------------------------------------
 
 
@@ -41,7 +41,7 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//
+//  Declaration of the Film type (a film)
 //------------------------------------------------------------------------------
 
 
@@ -54,7 +54,14 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//  
+//  readFilmData: Reads the film data from a file
+//
+//  Arguments:
+//      in      : File pointer to the file that contains the film data
+//
+//  Return:
+//      Film*   : a pointer to the film
+//
 //------------------------------------------------------------------------------
 
 
@@ -64,7 +71,15 @@ Film *readFilmData
 
 
 //------------------------------------------------------------------------------
-//  
+//  createFilm: Creates a film with a given height and width
+//
+//  Arguments:
+//      height  : height of the film
+//      width   : width of the film
+//
+//  Return:
+//      Film*   : a pointer to the film
+//
 //------------------------------------------------------------------------------
 
 
@@ -75,7 +90,14 @@ Film *createFilm
 
 
 //------------------------------------------------------------------------------
-//  
+//  storePixelRGB: Stores a pixel in the film
+//
+//  Arguments:
+//      film    : Film in which the pixel is stored
+//      i       : row index of the pixel
+//      j       : column index of the pixel
+//      color   : color of the pixel
+//
 //------------------------------------------------------------------------------
 
 
@@ -88,7 +110,16 @@ void storePixelRGB
 
 
 //------------------------------------------------------------------------------
-//  
+//  createBitmapFileHeader: Creates the bitmap file header
+//
+//  Arguments:
+//      height      : height of the bitmap
+//      width       : width of the bitmap
+//      paddingSize : size of the padding
+//
+//  Return:
+//      unsigned char* : a pointer to the bitmap file header
+//
 //------------------------------------------------------------------------------
 
 
@@ -100,7 +131,15 @@ unsigned char* createBitmapFileHeader
 
 
 //------------------------------------------------------------------------------
-//  
+//  createBitmapInfoHeader: Creates the bitmap info header
+//
+//  Arguments:
+//      height  : height of the bitmap
+//      width   : width of the bitmap
+//
+//  Return:
+//      unsigned char* : a pointer to the bitmap info header
+//
 //------------------------------------------------------------------------------
 
 
@@ -111,7 +150,12 @@ unsigned char* createBitmapInfoHeader
 
 
 //------------------------------------------------------------------------------
-//  
+//  saveToBitmap: Saves the film to a bitmap file
+//
+//  Arguments:
+//      film          : Film that is saved to the bitmap file
+//      imageFileName : Name of the bitmap file
+//
 //------------------------------------------------------------------------------
 
 

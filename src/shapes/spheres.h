@@ -22,7 +22,7 @@
 
 
 //------------------------------------------------------------------------------
-//  TODO: COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the Sphere type (a sphere)
 //------------------------------------------------------------------------------
 
 
@@ -35,7 +35,7 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//
+//  Declaration of the Spheres type (a collection of spheres)
 //------------------------------------------------------------------------------
 
 
@@ -47,6 +47,11 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
+//  readSphereData: Reads the sphere data from a file
+//
+//  Arguments:
+//      fin     : File pointer to the file that contains the sphere data
+//      spheres : Pointer to the spheres
 //
 //------------------------------------------------------------------------------
 
@@ -57,6 +62,17 @@ void readSphereData
     Spheres*     spheres );
 
 //------------------------------------------------------------------------------
+//  addSphere: Adds a sphere to the collection of spheres using the given
+//             centre, radius and material ID
+//
+//  Arguments:
+//      spheres : Pointer to the spheres
+//      centre  : Centre of the sphere
+//      radius  : Radius of the sphere
+//      matID   : Material ID of the sphere
+//
+//  Return:
+//      int     : The number of spheres
 //
 //------------------------------------------------------------------------------
 
@@ -70,7 +86,15 @@ int addSphere
 
 
 //------------------------------------------------------------------------------
+//  calcSphereIntersection: Calculates the intersection of a ray with a sphere
 //
+//  Arguments:
+//      intersect : Pointer to the intersection
+//      ray       : Pointer to the ray
+//      sphere    : Pointer to the sphere
+//
+//  Return:
+//      bool      : True if the ray intersects the sphere, false otherwise
 //------------------------------------------------------------------------------
 
 

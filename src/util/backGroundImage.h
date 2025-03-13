@@ -17,7 +17,7 @@
 
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the BGImage type (a background image)
 //------------------------------------------------------------------------------
 
 
@@ -35,7 +35,12 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//  
+//  readBackGroundImage: Reads the background image from a file
+//
+//  Arguments:
+//      in      : File pointer to the file that contains the background image
+//      bgimage : Pointer to the background image
+//
 //------------------------------------------------------------------------------
 
 
@@ -46,7 +51,12 @@ void readBackGroundImage
 
 
 //------------------------------------------------------------------------------
-//  
+//  createBackGroundImage: Creates the background image
+//
+//  Arguments:
+//      name    : Name of the background image
+//      bgimage : Pointer to the background image
+//
 //------------------------------------------------------------------------------
 
 
@@ -57,6 +67,15 @@ void createBackGroundImage
   
   
 //------------------------------------------------------------------------------
+//  getBGImagePixelValue: Returns the pixel value of the background image
+//
+//  Arguments:
+//      im2     : Pointer to the background image
+//      x       : x-coordinate of the pixel
+//      y       : y-coordinate of the pixel
+//
+//  Return:
+//      Color   : The color of the pixel
 //
 //------------------------------------------------------------------------------
 
@@ -69,6 +88,10 @@ Color getBGImagePixelValue
     
 
 //------------------------------------------------------------------------------
+//  freeBGImage: Frees the memory of the background image
+//
+//  Arguments:
+//      im2     : Pointer to the background image
 //
 //------------------------------------------------------------------------------
 

@@ -19,7 +19,13 @@
 #include "../base/globalData.h"
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  calcIntersection: Calculates the intersection of a ray with the spheres
+//
+//  Arguments:
+//      intersect : Pointer to the intersection
+//      ray       : Pointer to the ray
+//      globdat   : Pointer to the global data
+//
 //------------------------------------------------------------------------------
 
 

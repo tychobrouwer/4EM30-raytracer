@@ -19,7 +19,7 @@
 #include "../util/film.h"
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the CameraData type (a camera)
 //------------------------------------------------------------------------------
 
 
@@ -31,9 +31,14 @@ typedef struct
 } CameraData;
 
 
+//------------------------------------------------------------------------------
+//  readCameraData: Reads the camera data from a file
 //
+//  Arguments:
+//      fin     : File pointer to the file that contains the camera data
+//      cam     : Pointer to the camera
 //
-//
+//------------------------------------------------------------------------------
 
 
 void readCameraData
@@ -42,6 +47,11 @@ void readCameraData
     CameraData* cam );
 
 //------------------------------------------------------------------------------
+//  initialiseCamera: Initialises the camera object
+//
+//  Arguments:
+//      cam     : Pointer to the camera
+//      film    : Pointer to the film
 //
 //------------------------------------------------------------------------------
 
@@ -53,6 +63,13 @@ void initialiseCamera
 
 
 //------------------------------------------------------------------------------
+//  generateRay: Generates a ray for a given pixel
+//
+//  Arguments:
+//      ray     : Pointer to the ray
+//      ix      : x-coordinate of the pixel
+//      iy      : y-coordinate of the pixel
+//      cam     : Pointer to the camera
 //
 //------------------------------------------------------------------------------
 

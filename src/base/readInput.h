@@ -17,7 +17,12 @@
 
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  readInput: Reads the input data from a file
+//
+//  Arguments:
+//      fileName : Name of the file that contains the input data
+//      globdat  : Pointer to the global data
+//
 //------------------------------------------------------------------------------
 
 

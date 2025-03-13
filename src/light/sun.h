@@ -17,7 +17,7 @@
 #include "../util/vector.h"
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the Sun type (a sun)
 //------------------------------------------------------------------------------
 
 
@@ -29,6 +29,11 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
+//  readSunData: Reads the sun data from a file
+//
+//  Arguments:
+//      fin     : File pointer to the file that contains the sun data
+//      sun     : Pointer to the sun
 //
 //------------------------------------------------------------------------------
 

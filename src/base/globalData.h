@@ -24,7 +24,7 @@
 
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the Globdat type (a global data structure)
 //------------------------------------------------------------------------------
 
 
@@ -41,6 +41,15 @@ typedef struct
 
   char        filename[40];
 } Globdat;
+
+
+//------------------------------------------------------------------------------
+//  initData: Initialises the global data
+//
+//  Arguments:
+//      globdat : Pointer to the global data
+//
+//------------------------------------------------------------------------------
 
 
 void initData

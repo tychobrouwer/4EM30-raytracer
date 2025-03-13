@@ -20,7 +20,7 @@
 
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the Material type (a material)
 //------------------------------------------------------------------------------
 
 
@@ -31,21 +31,44 @@ typedef struct
 } Material;
 
 
+//------------------------------------------------------------------------------
+//  Declaration of the Materials type (a collection of materials)
+//------------------------------------------------------------------------------
+
+
 typedef struct
 {
   Material   mat[MAX_MATERIALS];
 } Materials;
 
 
+//------------------------------------------------------------------------------
+//  readMaterialData: Reads the material data from a file
 //
+//  Arguments:
+//      fin       : File pointer to the file that contains the material data
+//      materials : Pointer to the materials
 //
-//
+//------------------------------------------------------------------------------
 
 
 void readMaterialData
 
   ( FILE*       fin       ,
     Materials*  materials );
+
+
+//------------------------------------------------------------------------------
+// getColor: Returns the color of a material
+//
+//  Arguments:
+//      intensity : intensity of the color
+//      material  : Pointer to the material
+//
+//  Return:
+//      Color     : The color of the material
+//
+//------------------------------------------------------------------------------
 
 
 Color getColor

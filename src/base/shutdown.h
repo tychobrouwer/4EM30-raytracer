@@ -17,7 +17,11 @@
 
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  shutdown: Shuts down the RayTracer
+//
+//  Arguments:
+//      globdat : Pointer to the global data
+//
 //------------------------------------------------------------------------------
 
 

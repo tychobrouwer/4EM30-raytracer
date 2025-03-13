@@ -16,7 +16,11 @@
 #include "globalData.h"
 
 //------------------------------------------------------------------------------
-//  COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  preprocess: Preprocesses the data
+//
+//  Arguments:
+//      globdat : Pointer to the global data
+//
 //------------------------------------------------------------------------------
 
 

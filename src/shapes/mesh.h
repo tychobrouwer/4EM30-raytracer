@@ -21,7 +21,7 @@
 
 
 //------------------------------------------------------------------------------
-//  TODO: COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  Declaration of the Face type (a face using vectors)
 //------------------------------------------------------------------------------
 
 
@@ -34,7 +34,7 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//
+//  Declaration of the FaceData type (a face using vertex IDs)
 //------------------------------------------------------------------------------
 
 
@@ -47,7 +47,7 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//
+//  Declaration of the Mesh type (a mesh using vertices and faces)
 //------------------------------------------------------------------------------
 
 
@@ -62,7 +62,12 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//  TODO: COMPLETE FUNCTION DESCRIPTIONS AND CONTRACTS
+//  readMeshData: Reads the mesh data from a file
+//
+//  Arguments:
+//      fin     : File pointer to the file that contains the mesh data
+//      mesh    : Pointer to the mesh
+//
 //------------------------------------------------------------------------------
 
 
@@ -73,6 +78,11 @@ void readVertexData
 
 
 //------------------------------------------------------------------------------
+//  readFaceData: Reads the face data from a file
+//
+//  Arguments:
+//      fin     : File pointer to the file that contains the face data
+//      mesh    : Pointer to the mesh
 //
 //------------------------------------------------------------------------------
 
@@ -84,6 +94,12 @@ void readFaceData
 
 
 //------------------------------------------------------------------------------
+//  getFace: Returns the face with the given face ID from the mesh
+//
+//  Arguments:
+//      face    : Pointer to the face
+//      faceID  : ID of the face
+//      mesh    : Pointer to the mesh
 //
 //------------------------------------------------------------------------------
 
@@ -96,6 +112,14 @@ void getFace
 
 
 //------------------------------------------------------------------------------
+//  addVertex: Adds a vertex to the mesh
+//
+//  Arguments:
+//      mesh    : Pointer to the mesh
+//      vertex  : Vertex to be added
+//
+//  Return:
+//      int     : The number of vertices
 //
 //------------------------------------------------------------------------------
 
@@ -107,6 +131,16 @@ int addVertex
 
 
 //------------------------------------------------------------------------------
+//  addFace: Adds a face to the mesh
+//
+//  Arguments:
+//      mesh        : Pointer to the mesh
+//      vertexIDs   : IDs of the vertices of the face
+//      vertexCount : Number of vertices of the face
+//      matID       : Material ID of the face
+//
+//  Return:
+//      int         : The number of faces
 //
 //------------------------------------------------------------------------------
 
@@ -120,6 +154,15 @@ int addFace
 
 
 //------------------------------------------------------------------------------
+//  calcFaceIntersection: Calculates the intersection of a ray with a face
+//
+//  Arguments:
+//      intersect : Pointer to the intersection
+//      ray       : Pointer to the ray
+//      face      : Pointer to the face
+//
+//  Return:
+//      bool      : True if the intersection is found, false otherwise
 //
 //------------------------------------------------------------------------------
 
@@ -132,6 +175,16 @@ bool calcFaceIntersection
 
 
 //------------------------------------------------------------------------------
+// calcTriangleIntersection: Calculates the intersection of a ray with a
+//                           triangle defined by a face
+//
+//  Arguments:
+//      intersect : Pointer to the intersection
+//      ray       : Pointer to the ray
+//      face      : Pointer to the face
+//
+//  Return:
+//      bool      : True if the intersection is found, false otherwise
 //
 //------------------------------------------------------------------------------
 
@@ -144,6 +197,10 @@ bool calcTriangleIntersection
     
     
 //------------------------------------------------------------------------------
+//  freeMesh: Frees the memory of the mesh
+//
+//  Arguments:
+//      mesh    : Pointer to the mesh
 //
 //------------------------------------------------------------------------------    
     
