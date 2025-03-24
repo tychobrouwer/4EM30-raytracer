@@ -22,7 +22,7 @@
 const char *IMAGE = "Image";
 
 //------------------------------------------------------------------------------
-//
+//  readBackGroundImage: Reads the background image from a file
 //------------------------------------------------------------------------------
 
 
@@ -56,7 +56,7 @@ void readBackGroundImage
 
 
 //------------------------------------------------------------------------------
-//
+//  createBackGroundImage: Creates the background image
 //------------------------------------------------------------------------------
 
 void createBackGroundImage
@@ -118,7 +118,7 @@ void createBackGroundImage
 
 
 //------------------------------------------------------------------------------
-//
+//  getBGImagePixelValue: Returns the pixel value of the background image
 //------------------------------------------------------------------------------
 
 Color getBGImagePixelValue
@@ -177,7 +177,7 @@ Color getBGImagePixelValue
 
 
 //------------------------------------------------------------------------------
-//
+//  freeBGImage: Frees the memory of the background image
 //------------------------------------------------------------------------------
 
   

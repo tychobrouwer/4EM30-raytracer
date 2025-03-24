@@ -13,6 +13,11 @@
 #include "mathutils.h"
 #include <math.h>
 
+//------------------------------------------------------------------------------
+//  quadratic: function to solve the solutions of a quadratic equation
+//  a*t^2 + b*t + c = 0
+//------------------------------------------------------------------------------
+
 bool quadratic
 
   ( double     a    ,
