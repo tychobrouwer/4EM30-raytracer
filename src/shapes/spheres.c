@@ -15,7 +15,7 @@
 #include "../util/mathutils.h"
 
 //------------------------------------------------------------------------------
-//
+//  readSphereData: Reads the sphere data from a file
 //------------------------------------------------------------------------------
 
 
@@ -48,7 +48,8 @@ void readSphereData
 
 
 //-----------------------------------------------------------------------------
-//
+//  addSphere: Adds a sphere to the collection of spheres using the given
+//             centre, radius and material ID
 //-----------------------------------------------------------------------------
 
 
@@ -77,7 +78,7 @@ int addSphere
 
 
 //------------------------------------------------------------------------------
-//
+//  calcSphereIntersection: Calculates the intersection of a ray with a sphere
 //------------------------------------------------------------------------------
 
 
