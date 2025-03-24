@@ -13,7 +13,7 @@
 #include "shapes.h"
 
 //------------------------------------------------------------------------------
-//  calcIntersection
+//  calcIntersection: Calculates the intersection of a ray with the spheres
 //------------------------------------------------------------------------------
 
 

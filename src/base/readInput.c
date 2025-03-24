@@ -28,7 +28,7 @@ const char *FILENAME  = "Filename";
 const char *MATERIALS = "Materials";
 
 //------------------------------------------------------------------------------
-//
+//  readInput: Reads the input data from a file
 //------------------------------------------------------------------------------
 
 
