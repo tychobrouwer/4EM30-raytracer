@@ -20,7 +20,7 @@
 
 
 //------------------------------------------------------------------------------
-//  Function to solve the solutions of a quadratic equation of the form
+//  quadratic: function to solve the solutions of a quadratic equation
 //  a*t^2 + b*t + c = 0
 //
 //  Arguments

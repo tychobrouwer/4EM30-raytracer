@@ -47,8 +47,8 @@ typedef struct
 
 
 //------------------------------------------------------------------------------
-//  Function to resect the values of the intersection variable. It sets the
-//  distance of the intersection to infinity and the materialID to -1.
+//  resetIntersect: function to resect the values of the intersection variable.
+//  It sets the distance of the intersection to infinity and the materialID to -1.
 //  
 //  Arguments:
 //     intersect : properties of the intersection
