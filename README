@@ -35,6 +35,6 @@ Windows (VS Code) / Linux
   
   cd testcases/singlePin
   
-  ../../bin/raytracer.x singlePin.in
+  ../../bin/raytracer.exe singlePin.in
   
   The image will be saved in the same directory as the input file.
