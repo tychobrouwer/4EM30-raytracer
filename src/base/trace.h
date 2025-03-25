@@ -13,6 +13,8 @@
 #ifndef BASE_TRACE_H
 #define BASE_TRACE_H
 
+#include <omp.h>
+
 #include "globalData.h"
 
 

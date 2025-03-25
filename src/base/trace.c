@@ -40,6 +40,10 @@ void trace
 
   Intersect intersection;
 
+  int np = omp_get_max_threads();
+  omp_set_num_threads(np);
+
+#pragma omp parallel for private(iy, ray, col, intersection)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
