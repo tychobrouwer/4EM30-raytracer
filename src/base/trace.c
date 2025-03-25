@@ -46,7 +46,7 @@ void trace
 
   printf("  Number of threads: %d\n", numThreads);
 
-  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread)
+  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
@@ -91,7 +91,7 @@ void trace
         
           jy = (int)ny*(theta)/3.14;
           jx = (int)nx*(3.14-phi)/6.28;
-                  
+
           col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
         }
         else
@@ -105,7 +105,7 @@ void trace
       {
         col = getColor( intensity , &globdat->materials.mat[intersection.matID] );
       }
-           
+
       storePixelRGB( globdat->film , ix , iy , &col );
     }
   }

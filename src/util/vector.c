@@ -164,16 +164,11 @@ Vec3 permute
 
 {
   Vec3 b;
-  double tmp[3];
-
-  tmp[kx] = a.x;
-  tmp[ky] = a.y;
-  tmp[kz] = a.z;
-
-  b.x = tmp[0];
-  b.y = tmp[1];
-  b.z = tmp[2];
+  const double vals[3] = {a.x, a.y, a.z};
+  
+  b.x = vals[kx];
+  b.y = vals[ky];
+  b.z = vals[kz];
 
   return b;
 }
-
