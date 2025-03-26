@@ -7,7 +7,7 @@
 #include "../shapes/mesh.h"
 #include "../shapes/spheres.h"
 
-#define MAX_BVH_NODES 100000
+#define MAX_BVH_NODES 1000000
 
 typedef struct
 {

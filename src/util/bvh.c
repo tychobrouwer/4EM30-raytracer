@@ -163,7 +163,7 @@ int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 
   double tmin = fast_fmax(fast_fmax(fast_fmin(tx1, tx2), fast_fmin(ty1, ty2)), fast_fmin(tz1, tz2));
   double tmax = fast_fmin(fast_fmin(fast_fmax(tx1, tx2), fast_fmax(ty1, ty2)), fast_fmax(tz1, tz2));
-  
+
   return tmax >= tmin && tmax > 0;
 }
 
