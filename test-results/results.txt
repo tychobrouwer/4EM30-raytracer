@@ -7,9 +7,17 @@ base static 1               omp 16 -  33.088s
 base dynamic                omp 16 -  33.072s
 
 
-base static pixelsPerThread omp additional optimizations
+base static pixelsPerThread omp 16 additional optimizations
 remove tmp var permute             -  23.482s
 
 
 bvh                                -  16.082s
-bvh static pixelsPerThread omp 16  -   2.790s
+bvh  static pixelsPerThread omp  2 -  11.854s
+bvh  static pixelsPerThread omp  4 -   8.320s
+bvh  static pixelsPerThread omp  8 -   4.514s
+bvh  static pixelsPerThread omp 16 -   2.790s
+
+
+bvh  static pixelsPerThread omp 16 additional optimizations
+precompute invDir intersectAABB    -   2.640s
+fast_fmax and fast_fmin            -   0.499s

@@ -66,7 +66,8 @@ void trace
       
       resetIntersect( &intersection );
       
-      traverseBVH(bvh, globdat, &ray, &intersection, 0);
+      Vec3 invDir = {1.0 / ray.d.x, 1.0 / ray.d.y, 1.0 / ray.d.z};      
+      traverseBVH(bvh, globdat, &ray, &intersection, 0, &invDir);
 
       double intensity = dotProduct( &globdat->sun.d , &intersection.normal );
 

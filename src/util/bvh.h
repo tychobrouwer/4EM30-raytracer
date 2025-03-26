@@ -47,8 +47,8 @@ int comparePrimitives(const void* a, const void* b);
 
 int buildBVH(BVH *bvh, Globdat *globdat, int first, int count);
 
-int intersectAABB(Ray *ray, AABB *aabb);
+int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir);
 
-void traverseBVH(BVH* bvh, Globdat *globdat, Ray* ray, Intersect* intersect, int nodeIndex);
+void traverseBVH(BVH* bvh, Globdat *globdat, Ray* ray, Intersect* intersect, int nodeIndex, Vec3* invDir);
 
 #endif

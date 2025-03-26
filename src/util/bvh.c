@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <float.h>
 
+#define fast_fmin(a, b) ((a) < (b) ? (a) : (b))
+#define fast_fmax(a, b) ((a) > (b) ? (a) : (b))
+
 AABB computeFaceAABB(Face *face)
 {
   AABB bbox;
@@ -149,41 +152,26 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
   return nodeIndex;
 }
 
-int intersectAABB(Ray *ray, AABB *aabb)
+int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 {
-  double invDirX = ray->d.x == 0 ? 1e30 : 1.0 / ray->d.x;
-  double invDirY = ray->d.y == 0 ? 1e30 : 1.0 / ray->d.y;
-  double invDirZ = ray->d.z == 0 ? 1e30 : 1.0 / ray->d.z;
+  double tx1 = (aabb->min.x - ray->o.x) * invDir->x;
+  double tx2 = (aabb->max.x - ray->o.x) * invDir->x;
+  double ty1 = (aabb->min.y - ray->o.y) * invDir->y;
+  double ty2 = (aabb->max.y - ray->o.y) * invDir->y;
+  double tz1 = (aabb->min.z - ray->o.z) * invDir->z;
+  double tz2 = (aabb->max.z - ray->o.z) * invDir->z;
 
-  double tx1 = (aabb->min.x - ray->o.x) * invDirX;
-  double tx2 = (aabb->max.x - ray->o.x) * invDirX;
-  double ty1 = (aabb->min.y - ray->o.y) * invDirY;
-  double ty2 = (aabb->max.y - ray->o.y) * invDirY;
-  double tz1 = (aabb->min.z - ray->o.z) * invDirZ;
-  double tz2 = (aabb->max.z - ray->o.z) * invDirZ;
-
-  if (ray->d.x == 0 && (ray->o.x < aabb->min.x || ray->o.x > aabb->max.x))
-    return 0;
-  if (ray->d.y == 0 && (ray->o.y < aabb->min.y || ray->o.y > aabb->max.y))
-    return 0;
-  if (ray->d.z == 0 && (ray->o.z < aabb->min.z || ray->o.z > aabb->max.z))
-    return 0;
-
-  double tmin = fmin(tx1, tx2);
-  double tmax = fmax(tx1, tx2);
-  tmin = fmax(tmin, fmin(ty1, ty2));
-  tmax = fmin(tmax, fmax(ty1, ty2));
-  tmin = fmax(tmin, fmin(tz1, tz2));
-  tmax = fmin(tmax, fmax(tz1, tz2));
-
+  double tmin = fast_fmax(fast_fmax(fast_fmin(tx1, tx2), fast_fmin(ty1, ty2)), fast_fmin(tz1, tz2));
+  double tmax = fast_fmin(fast_fmin(fast_fmax(tx1, tx2), fast_fmax(ty1, ty2)), fast_fmax(tz1, tz2));
+  
   return tmax >= tmin && tmax > 0;
 }
 
-void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int nodeIndex)
+void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int nodeIndex, Vec3 *invDir)
 {
   BVHNode *node = &bvh->nodes[nodeIndex];
 
-  if (!intersectAABB(ray, &node->bbox)) {    
+  if (!intersectAABB(ray, &node->bbox, invDir)) {    
     return;
   }
 
@@ -206,6 +194,6 @@ void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int
     return;
   }
 
-  traverseBVH(bvh, globdat, ray, intersect, node->leftChild);
-  traverseBVH(bvh, globdat, ray, intersect, node->rightChild);
+  traverseBVH(bvh, globdat, ray, intersect, node->leftChild, invDir);
+  traverseBVH(bvh, globdat, ray, intersect, node->rightChild, invDir);
 }
