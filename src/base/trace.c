@@ -19,7 +19,11 @@
 #include "../util/color.h"
 #include "../util/ray.h"
 #include "../util/film.h"
+#include "../util/bvh.h"
 
+#include <omp.h>
+#include <string.h>
+#include <stdlib.h>
 
 //------------------------------------------------------------------------------
 //  trace: Traces the rays through the scene
@@ -32,6 +36,7 @@ void trace
 
 {
   printf("\n  +++ Start tracing +++\n");
+  fflush(stdout);
 
   int ix,iy;
 
@@ -40,13 +45,23 @@ void trace
 
   Intersect intersection;
 
+  BVH *bvh;
+  bvh = (BVH*)malloc(sizeof(BVH));
+  bvh->nodeCount = 0;
+
+  int total = globdat->mesh.faceCount + globdat->spheres.count;
+
+  buildBVH(bvh, globdat, 0, total);
+
+  printf("  BVH built with %d nodes\n", bvh->nodeCount);
+
   int numThreads = 16;
   int pixelsPerThread = globdat->film->width * globdat->film->height / numThreads;
   omp_set_num_threads(numThreads);
 
   printf("  Number of threads: %d\n", numThreads);
 
-  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
+  // #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
@@ -55,7 +70,7 @@ void trace
       
       resetIntersect( &intersection );
       
-      calcIntersection( &intersection , &ray , globdat );
+      traverseBVH(bvh, globdat, &ray, &intersection, 0);
 
       double intensity = dotProduct( &globdat->sun.d , &intersection.normal );
 

@@ -112,6 +112,22 @@ void getFace
 
 
 //-----------------------------------------------------------------------------
+//  getFaceFromFaceData: Returns the face with the given face ID from the mesh
+//-----------------------------------------------------------------------------
+
+void getFaceFromFaceData(Face *face, FaceData *faceData, Mesh *mesh)
+{
+  face->vertexCount = faceData->vertexCount;
+  face->matID = faceData->matID;
+  
+  for (int i = 0; i < faceData->vertexCount; i++)
+  {
+    face->vertices[i] = mesh->vertices[faceData->vertexIDs[i]];
+  }
+}
+
+
+//-----------------------------------------------------------------------------
 //  addVertex: Adds a vertex to the mesh
 //-----------------------------------------------------------------------------
   

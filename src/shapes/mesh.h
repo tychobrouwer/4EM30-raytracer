@@ -111,6 +111,24 @@ void getFace
     Mesh*         mesh   );
 
 
+//-----------------------------------------------------------------------------
+//  getFaceFromFaceData: Returns the face with the given face ID from the mesh
+//
+//  Arguments:
+//      face    : Pointer to the face
+//      faceData: Pointer to the face data
+//      mesh    : Pointer to the mesh
+//
+//-----------------------------------------------------------------------------
+
+
+void getFaceFromFaceData
+
+  ( Face*         face     ,
+    FaceData*     faceData ,
+    Mesh*         mesh     );
+    
+
 //------------------------------------------------------------------------------
 //  addVertex: Adds a vertex to the mesh
 //

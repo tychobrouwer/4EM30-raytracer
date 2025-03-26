@@ -127,6 +127,69 @@ Vec3 addVector
 
 
 //------------------------------------------------------------------------------
+//  subtractVector: Subtracts two vectors, each multiplied by a factor
+//------------------------------------------------------------------------------
+
+
+Vec3 subtractVector
+
+  ( double  fa ,
+    Vec3*   a  ,
+    double  fb ,
+    Vec3*   b  )
+
+{
+  Vec3 c;
+
+  c.x = a->x - b->x;
+  c.y = a->y - b->y;
+  c.z = a->z - b->z;
+
+  return c;
+}
+
+
+//------------------------------------------------------------------------------
+//  minVector: Returns the minimum of two vectors, each multiplied by a factor
+//------------------------------------------------------------------------------
+
+
+Vec3 minVector
+
+  ( double  fa ,
+    Vec3*   a  ,
+    double  fb ,
+    Vec3*   b  )
+{
+  Vec3 c;
+  c.x = a->x < b->x ? a->x : b->x;
+  c.y = a->y < b->y ? a->y : b->y;
+  c.z = a->z < b->z ? a->z : b->z;
+  return c;
+}
+
+
+//------------------------------------------------------------------------------
+//  maxVector: Returns the maximum of two vectors, each multiplied by a factor
+//------------------------------------------------------------------------------
+
+
+Vec3 maxVector
+
+  ( double fa ,
+    Vec3*  a  ,
+    double fb ,
+    Vec3*  b  )
+{
+  Vec3 c;
+  c.x = a->x > b->x ? a->x : b->x;
+  c.y = a->y > b->y ? a->y : b->y;
+  c.z = a->z > b->z ? a->z : b->z;
+  return c;
+}
+
+
+//------------------------------------------------------------------------------
 //  maxDimension: Returns the dimension in which the vector has an
 //                absolute maximum value.
 //------------------------------------------------------------------------------
