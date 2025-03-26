@@ -6,6 +6,12 @@
 #define fast_fmin(a, b) ((a) < (b) ? (a) : (b))
 #define fast_fmax(a, b) ((a) > (b) ? (a) : (b))
 
+
+//------------------------------------------------------------------------------
+//  computeFaceAABB: Computes the AABB of a face
+//------------------------------------------------------------------------------
+
+
 AABB computeFaceAABB(Face *face)
 {
   AABB bbox;
@@ -22,6 +28,12 @@ AABB computeFaceAABB(Face *face)
   return bbox;
 }
 
+
+//------------------------------------------------------------------------------
+//  computeSphereAABB: Computes the AABB of a sphere
+//------------------------------------------------------------------------------
+
+
 AABB computeSphereAABB(Sphere *sphere)
 {
   Vec3 radiusVec = {sphere->radius, sphere->radius, sphere->radius};
@@ -31,6 +43,12 @@ AABB computeSphereAABB(Sphere *sphere)
   bbox.max = addVector(1.0, &sphere->centre, 1.0, &radiusVec);
   return bbox;
 }
+
+
+//------------------------------------------------------------------------------
+//  computeCentroidAABB: Computes the centroid of an AABB
+//------------------------------------------------------------------------------
+
 
 Vec3 computeCentroidAABB(AABB *aabb)
 {
@@ -42,6 +60,12 @@ Vec3 computeCentroidAABB(AABB *aabb)
 
   return centroid;
 }
+
+
+//------------------------------------------------------------------------------
+//  comparePrimitives: Compares two primitives
+//------------------------------------------------------------------------------
+
 
 int comparePrimitives(const void *a, const void *b)
 {
@@ -65,6 +89,12 @@ int comparePrimitives(const void *a, const void *b)
 
   return 0;
 }
+
+
+//------------------------------------------------------------------------------
+//  buildBVH: Builds the BVH tree
+//------------------------------------------------------------------------------
+
 
 int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 {
@@ -152,6 +182,12 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
   return nodeIndex;
 }
 
+
+//------------------------------------------------------------------------------
+//  intersectAABB: Intersects a ray with an AABB
+//------------------------------------------------------------------------------
+
+
 int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 {
   double tx1 = (aabb->min.x - ray->o.x) * invDir->x;
@@ -166,6 +202,12 @@ int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 
   return tmax >= tmin && tmax > 0;
 }
+
+
+//------------------------------------------------------------------------------
+//  traverseBVH: Traverses the BVH tree
+//------------------------------------------------------------------------------
+
 
 void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int nodeIndex, Vec3 *invDir)
 {

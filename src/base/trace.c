@@ -25,6 +25,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define PI 3.14159265358979323846
+
 //------------------------------------------------------------------------------
 //  trace: Traces the rays through the scene
 //------------------------------------------------------------------------------
@@ -42,6 +44,11 @@ void trace
 
   Ray   ray;
   Color col;
+
+  Color bgcol;
+  bgcol.red   = (int)255*0.678;
+  bgcol.green = (int)255*0.847;
+  bgcol.blue  = (int)255*0.902;
 
   Intersect intersection;
 
@@ -75,42 +82,19 @@ void trace
       {
         intensity = 0;
       }
-      
-      /* All code below this line related to the background image is 'hardcoded' 
-      without using and must be changed as part of the project.
-      Please make sure that you use abstraction, magic numbers etc.
-      Note that a sloppy code as shown below requires a lot of comments.
-      Make sure that you do not need comments in your final code.*/
-     
+           
       if ( intersection.matID == -1 )
       {
-        //printf("TTTT %d\n",globdat->bgimage.loadedFlag);
-        
         if ( globdat->bgimage.loadedFlag == 1 )
         {
-          double x = ray.d.x;
-          double y = ray.d.y;
-          double z = ray.d.z;
-         
-          int jx,jy;
-                
-          double theta = acos(z / ( sqrt(x*x + y*y + z*z)));
-        
-          double phi   = atan2(y, x);
-                
-          int ny = globdat->bgimage.height;
-          int nx = globdat->bgimage.width;        
-        
-          jy = (int)ny*(theta)/3.14;
-          jx = (int)nx*(3.14-phi)/6.28;
+          int jx, jy;
 
+          mapRayToBGCoordinates(&jx, &jy, ray, globdat);
           col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
         }
         else
         {
-          col.red   = (int)255*0.678; 
-          col.green = (int)255*0.847;
-          col.blue  = (int)255*0.902;
+          col = bgcol;
         }
       }
       else
@@ -123,3 +107,24 @@ void trace
   }
 }
 
+//------------------------------------------------------------------------------
+//  mapRayToBGCoordinates: Maps the ray direction to the background image
+//                         coordinates
+//------------------------------------------------------------------------------
+
+void mapRayToBGCoordinates(int* jx, int* jy, Ray ray, Globdat* globdat)
+{
+  double x = ray.d.x;
+  double y = ray.d.y;
+  double z = ray.d.z;
+ 
+  double theta = acos(z / ( sqrt(x*x + y*y + z*z)));
+
+  double phi   = atan2(y, x);
+
+  int ny = globdat->bgimage.height;
+  int nx = globdat->bgimage.width;
+
+  *jy = (int)(ny * (theta) / PI);
+  *jx = (int)(nx * (PI - phi) / (2*PI));
+}
