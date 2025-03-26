@@ -53,15 +53,11 @@ void trace
 
   buildBVH(bvh, globdat, 0, total);
 
-  printf("  BVH built with %d nodes\n", bvh->nodeCount);
-
   int numThreads = 16;
   int pixelsPerThread = globdat->film->width * globdat->film->height / numThreads;
   omp_set_num_threads(numThreads);
 
-  printf("  Number of threads: %d\n", numThreads);
-
-  // #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
+  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )

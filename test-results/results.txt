@@ -8,4 +8,8 @@ base dynamic                omp 16 -  33.072s
 
 
 base static pixelsPerThread omp additional optimizations
-remove tmp var permute             - 23.482s
+remove tmp var permute             -  23.482s
+
+
+bvh                                -  16.082s
+bvh static pixelsPerThread omp 16  -   2.790s
