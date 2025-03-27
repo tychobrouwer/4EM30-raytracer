@@ -59,7 +59,7 @@ void trace
 
   buildBVH(bvh, globdat, 0, total);
 
-  int numThreads = 16;
+  int numThreads = omp_get_max_threads();
   int pixelsPerThread = globdat->film->width * globdat->film->height / numThreads;
   omp_set_num_threads(numThreads);
 
