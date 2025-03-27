@@ -19,7 +19,13 @@
 #include "../util/color.h"
 #include "../util/ray.h"
 #include "../util/film.h"
+#include "../util/bvh.h"
 
+#include <omp.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define PI 3.14159265358979323846
 
 //------------------------------------------------------------------------------
 //  trace: Traces the rays through the scene
@@ -32,14 +38,32 @@ void trace
 
 {
   printf("\n  +++ Start tracing +++\n");
-
+  
   int ix,iy;
 
   Ray   ray;
   Color col;
 
+  Color bgcol;
+  bgcol.red   = (int)255*0.678;
+  bgcol.green = (int)255*0.847;
+  bgcol.blue  = (int)255*0.902;
+
   Intersect intersection;
 
+  BVH *bvh;
+  bvh = (BVH*)malloc(sizeof(BVH));
+  bvh->nodeCount = 0;
+
+  int total = globdat->mesh.faceCount + globdat->spheres.count;
+
+  buildBVH(bvh, globdat, 0, total);
+
+  int numThreads = omp_get_max_threads();
+  int pixelsPerThread = globdat->film->width * globdat->film->height / numThreads;
+  omp_set_num_threads(numThreads);
+
+  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
@@ -48,7 +72,8 @@ void trace
       
       resetIntersect( &intersection );
       
-      calcIntersection( &intersection , &ray , globdat );
+      Vec3 invDir = {1.0 / ray.d.x, 1.0 / ray.d.y, 1.0 / ray.d.z};      
+      traverseBVH(bvh, globdat, &ray, &intersection, 0, &invDir);
 
       double intensity = dotProduct( &globdat->sun.d , &intersection.normal );
 
@@ -56,51 +81,49 @@ void trace
       {
         intensity = 0;
       }
-      
-      /* All code below this line related to the background image is 'hardcoded' 
-      without using and must be changed as part of the project.
-      Please make sure that you use abstraction, magic numbers etc.
-      Note that a sloppy code as shown below requires a lot of comments.
-      Make sure that you do not need comments in your final code.*/
-     
+           
       if ( intersection.matID == -1 )
       {
-        //printf("TTTT %d\n",globdat->bgimage.loadedFlag);
-        
         if ( globdat->bgimage.loadedFlag == 1 )
         {
-          double x = ray.d.x;
-          double y = ray.d.y;
-          double z = ray.d.z;
-         
-          int jx,jy;
-                
-          double theta = acos(z / ( sqrt(x*x + y*y + z*z)));
-        
-          double phi   = atan2(y, x);
-                
-          int ny = globdat->bgimage.height;
-          int nx = globdat->bgimage.width;        
-        
-          jy = (int)ny*(theta)/3.14;
-          jx = (int)nx*(3.14-phi)/6.28;
-                  
+          int jx, jy;
+
+          mapRayToBGCoordinates(&jx, &jy, ray, globdat);
           col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
         }
         else
         {
-          col.red   = (int)255*0.678; 
-          col.green = (int)255*0.847;
-          col.blue  = (int)255*0.902;
+          col = bgcol;
         }
       }
       else
       {
         col = getColor( intensity , &globdat->materials.mat[intersection.matID] );
       }
-           
+
       storePixelRGB( globdat->film , ix , iy , &col );
     }
   }
 }
 
+//------------------------------------------------------------------------------
+//  mapRayToBGCoordinates: Maps the ray direction to the background image
+//                         coordinates
+//------------------------------------------------------------------------------
+
+void mapRayToBGCoordinates(int* jx, int* jy, Ray ray, Globdat* globdat)
+{
+  double x = ray.d.x;
+  double y = ray.d.y;
+  double z = ray.d.z;
+ 
+  double theta = acos(z / ( sqrt(x*x + y*y + z*z)));
+
+  double phi   = atan2(y, x);
+
+  int ny = globdat->bgimage.height;
+  int nx = globdat->bgimage.width;
+
+  *jy = (int)(ny * (theta) / PI);
+  *jx = (int)(nx * (PI - phi) / (2*PI));
+}

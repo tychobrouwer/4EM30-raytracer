@@ -127,6 +127,69 @@ Vec3 addVector
 
 
 //------------------------------------------------------------------------------
+//  subtractVector: Subtracts two vectors, each multiplied by a factor
+//------------------------------------------------------------------------------
+
+
+Vec3 subtractVector
+
+  ( double  fa ,
+    Vec3*   a  ,
+    double  fb ,
+    Vec3*   b  )
+
+{
+  Vec3 c;
+
+  c.x = a->x - b->x;
+  c.y = a->y - b->y;
+  c.z = a->z - b->z;
+
+  return c;
+}
+
+
+//------------------------------------------------------------------------------
+//  minVector: Returns the minimum of two vectors, each multiplied by a factor
+//------------------------------------------------------------------------------
+
+
+Vec3 minVector
+
+  ( double  fa ,
+    Vec3*   a  ,
+    double  fb ,
+    Vec3*   b  )
+{
+  Vec3 c;
+  c.x = a->x < b->x ? a->x : b->x;
+  c.y = a->y < b->y ? a->y : b->y;
+  c.z = a->z < b->z ? a->z : b->z;
+  return c;
+}
+
+
+//------------------------------------------------------------------------------
+//  maxVector: Returns the maximum of two vectors, each multiplied by a factor
+//------------------------------------------------------------------------------
+
+
+Vec3 maxVector
+
+  ( double fa ,
+    Vec3*  a  ,
+    double fb ,
+    Vec3*  b  )
+{
+  Vec3 c;
+  c.x = a->x > b->x ? a->x : b->x;
+  c.y = a->y > b->y ? a->y : b->y;
+  c.z = a->z > b->z ? a->z : b->z;
+  return c;
+}
+
+
+//------------------------------------------------------------------------------
 //  maxDimension: Returns the dimension in which the vector has an
 //                absolute maximum value.
 //------------------------------------------------------------------------------
@@ -164,16 +227,11 @@ Vec3 permute
 
 {
   Vec3 b;
-  double tmp[3];
-
-  tmp[kx] = a.x;
-  tmp[ky] = a.y;
-  tmp[kz] = a.z;
-
-  b.x = tmp[0];
-  b.y = tmp[1];
-  b.z = tmp[2];
+  const double vals[3] = {a.x, a.y, a.z};
+  
+  b.x = vals[kx];
+  b.y = vals[ky];
+  b.z = vals[kz];
 
   return b;
 }
-
