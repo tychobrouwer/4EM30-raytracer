@@ -38,8 +38,7 @@ void trace
 
 {
   printf("\n  +++ Start tracing +++\n");
-  fflush(stdout);
-
+  
   int ix,iy;
 
   Ray   ray;
