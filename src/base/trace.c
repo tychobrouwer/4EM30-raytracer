@@ -20,6 +20,7 @@
 #include "../util/ray.h"
 #include "../util/film.h"
 #include "../util/bvh.h"
+#include "../light/shadow.h"    // shadow implementation
 
 #include <omp.h>
 #include <string.h>
@@ -72,15 +73,8 @@ void trace
       
       resetIntersect( &intersection );
       
-      Vec3 invDir = {1.0 / ray.d.x, 1.0 / ray.d.y, 1.0 / ray.d.z};      
+      Vec3 invDir = {1.0 / ray.d.x, 1.0 / ray.d.y, 1.0 / ray.d.z};
       traverseBVH(bvh, globdat, &ray, &intersection, 0, &invDir);
-
-      double intensity = dotProduct( &globdat->sun.d , &intersection.normal );
-
-      if (intensity < 0. )
-      {
-        intensity = 0;
-      }
            
       if ( intersection.matID == -1 )
       {
@@ -97,8 +91,32 @@ void trace
         }
       }
       else
+      
       {
-        col = getColor( intensity , &globdat->materials.mat[intersection.matID] );
+        Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
+            
+        Ray shadowRay;
+        createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
+      
+        Vec3 invShadowDir = {
+          1.0 / shadowRay.d.x,
+          1.0 / shadowRay.d.y,
+          1.0 / shadowRay.d.z
+        };
+
+        Intersect shadowHit;
+        resetIntersect(&shadowHit);
+      
+        traverseBVH(bvh, globdat, &shadowRay, &shadowHit, 0, &invShadowDir);
+      
+        bool inShadow = (shadowHit.matID != -1);
+      
+        double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal );
+        if (inShadow) {
+          lightIntensity = 0.0;
+        }
+
+        col = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
       }
 
       storePixelRGB( globdat->film , ix , iy , &col );
