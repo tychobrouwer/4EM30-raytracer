@@ -17,8 +17,8 @@ endif
 
 obj = $(src:.c=.o)
 
-LDFLAGS = -lm -O3 -fopenmp
-CFLAGS = -lm -O3 -fopenmp
+LDFLAGS = -lm -O3 -pg -g -fopenmp -mavx2
+CFLAGS = -lm -O3 -pg -g -fopenmp -mavx2
 
 all: raytracer test
 

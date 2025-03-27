@@ -187,7 +187,6 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 //  intersectAABB: Intersects a ray with an AABB
 //------------------------------------------------------------------------------
 
-
 int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 {
   double tx1 = (aabb->min.x - ray->o.x) * invDir->x;
