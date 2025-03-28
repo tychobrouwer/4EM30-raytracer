@@ -189,17 +189,37 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 
 int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 {
-  double tx1 = (aabb->min.x - ray->o.x) * invDir->x;
-  double tx2 = (aabb->max.x - ray->o.x) * invDir->x;
-  double ty1 = (aabb->min.y - ray->o.y) * invDir->y;
-  double ty2 = (aabb->max.y - ray->o.y) * invDir->y;
-  double tz1 = (aabb->min.z - ray->o.z) * invDir->z;
-  double tz2 = (aabb->max.z - ray->o.z) * invDir->z;
+  //float t1, t2;
+  //float minT = 0.0f, maxT = FLT_MAX;
 
-  double tmin = fast_fmax(fast_fmax(fast_fmin(tx1, tx2), fast_fmin(ty1, ty2)), fast_fmin(tz1, tz2));
-  double tmax = fast_fmin(fast_fmin(fast_fmax(tx1, tx2), fast_fmax(ty1, ty2)), fast_fmax(tz1, tz2));
+  //for (int i = 0; i < 3; i++) {
+  //  t1 = ((&aabb->min.x)[i] - (&ray->o.x)[i]) * (&invDir->x)[i];
+  //  t2 = ((&aabb->max.x)[i] - (&ray->o.x)[i]) * (&invDir->x)[i];
 
-  return tmax >= tmin && tmax > 0;
+  //  if ((&invDir->x)[i] < 0.0f) {
+  //    float temp = t1;
+  //    t1 = t2;
+  //    t2 = temp;
+  //  }
+
+  //  minT = (t1 > minT) ? t1 : minT;
+  //  maxT = (t2 < maxT) ? t2 : maxT;
+
+  //  if (maxT <= minT) return false;
+  //}
+  //
+  //return true;
+  //double tx1 = (aabb->min.x - ray->o.x) * invDir->x;
+  //double tx2 = (aabb->max.x - ray->o.x) * invDir->x;
+  //double ty1 = (aabb->min.y - ray->o.y) * invDir->y;
+  //double ty2 = (aabb->max.y - ray->o.y) * invDir->y;
+  //double tz1 = (aabb->min.z - ray->o.z) * invDir->z;
+  //double tz2 = (aabb->max.z - ray->o.z) * invDir->z;
+
+  //double tmin = fast_fmax(fast_fmax(fast_fmin(tx1, tx2), fast_fmin(ty1, ty2)), fast_fmin(tz1, tz2));
+  //double tmax = fast_fmin(fast_fmin(fast_fmax(tx1, tx2), fast_fmax(ty1, ty2)), fast_fmax(tz1, tz2));
+
+  //return tmax >= tmin && tmax > 0;
 }
 
 
