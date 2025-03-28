@@ -16,7 +16,8 @@ results = [
   ("BVH static auto omp  8", 4.514),
   ("BVH static auto omp 16", 2.790),
   ("precompute invDir intersectAABB", 2.640),
-  ("fast_fmax and fast_fmin", 0.499)
+  ("fast_fmax and fast_fmin", 0.499),
+  ("early return impl", 0.300)
 ]
 
 results.sort(key=lambda x: x[1], reverse=True)
@@ -36,7 +37,6 @@ for bar in bars:
   height = bar.get_height()
   plt.text(bar.get_x() + bar.get_width() / 2, height, f'{height:.3f}', ha='center', va='bottom', fontsize=8)
 
-plt.show()
-
 # Save the plot to an eps file
 plt.savefig("results.eps", format='eps', bbox_inches='tight')
+plt.show()
