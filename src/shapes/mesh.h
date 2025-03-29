@@ -54,7 +54,7 @@ typedef struct
 typedef struct
 {
   Vec3       *vertices;
-  Vec3       *normals;
+  Vec3       *VertexNormal;
   FaceData   *faces;
   
   int        vertexCount;

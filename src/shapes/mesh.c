@@ -36,7 +36,7 @@ void readVertexData
   fscanf( fin , "%d" , &nVer );
   
   mesh->vertices = (Vec3*)malloc(nVer * sizeof(Vec3));
-  mesh->normals = (Vec3*)calloc(nVer, sizeof(Vec3));
+  mesh->VertexNormal = (Vec3*)calloc(nVer, sizeof(Vec3));
 
   for( iVer = 0 ; iVer < nVer ; iVer++ )
   {
