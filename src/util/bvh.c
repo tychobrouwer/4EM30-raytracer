@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <float.h>
 
+#define PRIMITIVE_FACE   0
+#define PRIMITIVE_SPHERE 1
+
 
 //------------------------------------------------------------------------------
 //  computeFaceAABB: Computes the AABB of a face
@@ -122,7 +125,7 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     AABB aabb;
     if (objIndex < globdat->mesh.faceCount)
     {
-      primitives[i].isPrimitive = 0;
+      primitives[i].isPrimitive = PRIMITIVE_FACE;
 
       Face face;
       getFace(&face, objIndex, &globdat->mesh);
@@ -130,7 +133,7 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     }
     else
     {
-      primitives[i].isPrimitive = 1;
+      primitives[i].isPrimitive = PRIMITIVE_SPHERE;
       int sphereIndex = objIndex - globdat->mesh.faceCount;
 
       if (sphereIndex >= globdat->spheres.count)
@@ -186,15 +189,19 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 
 int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 {
+  const double* bounds[2] = {&aabb->min.x, &aabb->max.x};
+  const double* origin = &ray->o.x;
+  const double* inv = &invDir->x;
+
   double t1, t2;
-  double minT = 0.0f, maxT = FLT_MAX;
+  double minT = 0.0f, maxT = DBL_MAX;
 
   for (int i = 0; i < 3; i++) {
-    t1 = ((&aabb->min.x)[i] - (&ray->o.x)[i]) * (&invDir->x)[i];
-    t2 = ((&aabb->max.x)[i] - (&ray->o.x)[i]) * (&invDir->x)[i];
+    t1 = (bounds[0][i] - origin[i]) * inv[i];
+    t2 = (bounds[1][i] - origin[i]) * inv[i];
 
-    if ((&invDir->x)[i] < 0.0f) {
-      float temp = t1;
+    if (inv[i] < 0.0f) {
+      double temp = t1;
       t1 = t2;
       t2 = temp;
     }
@@ -204,7 +211,7 @@ int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 
     if (maxT <= minT) return 0;
   }
-  
+
   return 1;
 }
 
@@ -214,33 +221,39 @@ int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 //------------------------------------------------------------------------------
 
 
-void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int nodeIndex, Vec3 *invDir)
-{
-  BVHNode *node = &bvh->nodes[nodeIndex];
+void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int startNodeIndex, Vec3 *invDir)
+{ 
+  int nodeStack[64];  // Fixed size stack, adjust as needed
+  int stackPtr = 0;
+  nodeStack[stackPtr++] = startNodeIndex;
 
-  if (!intersectAABB(ray, &node->bbox, invDir)) {    
-    return;
-  }
+  while (stackPtr > 0) {
+    int nodeIndex = nodeStack[--stackPtr];
+    BVHNode *node = &bvh->nodes[nodeIndex];
 
-  if (node->isLeaf)
-  {
-    for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
-    {
-      if (i < globdat->mesh.faceCount)
-      {
-        Face face;
-        getFace(&face, i, &globdat->mesh);
-        calcFaceIntersection(intersect, ray, &face);
-      }
-      else
-      {
-        int iSphere = i - globdat->mesh.faceCount;
-        calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
-      }
+    if (!intersectAABB(ray, &node->bbox, invDir)) {    
+      continue;
     }
-    return;
-  }
 
-  traverseBVH(bvh, globdat, ray, intersect, node->leftChild, invDir);
-  traverseBVH(bvh, globdat, ray, intersect, node->rightChild, invDir);
+    if (node->isLeaf)
+    {
+      for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
+      {
+        if (i < globdat->mesh.faceCount)
+        {
+          Face face;
+          getFace(&face, i, &globdat->mesh);
+          calcFaceIntersection(intersect, ray, &face);
+        }
+        else
+        {
+          int iSphere = i - globdat->mesh.faceCount;
+          calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
+        }
+      }
+    } else {
+      nodeStack[stackPtr++] = node->rightChild;
+      nodeStack[stackPtr++] = node->leftChild;
+    }
+  }
 }
