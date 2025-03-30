@@ -61,10 +61,9 @@ void trace
   buildBVH(bvh, globdat, 0, total);
 
   int numThreads = omp_get_max_threads();
-  int pixelsPerThread = globdat->film->width * globdat->film->height / numThreads / 100;
   omp_set_num_threads(numThreads);
 
-  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
+  #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
