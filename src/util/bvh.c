@@ -111,11 +111,6 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
   node->bbox.max = (Vec3){-DBL_MAX, -DBL_MAX, -DBL_MAX};
 
   PrimitiveInfo *primitives = (PrimitiveInfo *)malloc(count * sizeof(PrimitiveInfo));
-  if (!primitives)
-  {
-    printf("ERROR: Memory allocation failed for primitives\n");
-    return -1;
-  }
 
   for (int i = 0; i < count; i++)
   {
@@ -136,13 +131,6 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
       primitives[i].isPrimitive = PRIMITIVE_SPHERE;
       int sphereIndex = objIndex - globdat->mesh.faceCount;
 
-      if (sphereIndex >= globdat->spheres.count)
-      {
-        printf("ERROR: Sphere index out of bounds: %d\n", sphereIndex);
-        free(primitives);
-        return -1;
-      }
-
       aabb = computeSphereAABB(&globdat->spheres.sphere[sphereIndex]);
     }
 
@@ -159,12 +147,6 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     node->isLeaf = 1;
     free(primitives);
     return nodeIndex;
-  }
-
-  Vec3 size = subtractVector(1.0, &node->bbox.max, 1.0, &node->bbox.min);
-  if (size.x == 0 && size.y == 0 && size.z == 0) {
-    printf("Degenerate AABB detected\n");
-    return -1;
   }
 
   qsort(primitives, count, sizeof(PrimitiveInfo), comparePrimitives);
