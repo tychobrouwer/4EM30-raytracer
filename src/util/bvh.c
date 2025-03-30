@@ -184,19 +184,19 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 
 int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3], double maxDist)
 {
-  double tmin = (dirIsNeg[0] ? aabb->max.x : aabb->min.x - ray->o.x) * invDir->x;
-  double tmax = (dirIsNeg[0] ? aabb->min.x : aabb->max.x - ray->o.x) * invDir->x;
-  
-  double tymin = (dirIsNeg[1] ? aabb->max.y : aabb->min.y - ray->o.y) * invDir->y;
-  double tymax = (dirIsNeg[1] ? aabb->min.y : aabb->max.y - ray->o.y) * invDir->y;
+  double tmin = ((dirIsNeg[0] ? aabb->max.x : aabb->min.x) - ray->o.x) * invDir->x;
+  double tmax = ((dirIsNeg[0] ? aabb->min.x : aabb->max.x) - ray->o.x) * invDir->x;
+    
+  double tymin = ((dirIsNeg[1] ? aabb->max.y : aabb->min.y) - ray->o.y) * invDir->y;
+  double tymax = ((dirIsNeg[1] ? aabb->min.y : aabb->max.y) - ray->o.y) * invDir->y;
   
   if (tmin > tymax || tymin > tmax || tmin > maxDist) return 0;
   
   if (tymin > tmin) tmin = tymin;
   if (tymax < tmax) tmax = tymax;
   
-  double tzmin = (dirIsNeg[2] ? aabb->max.z : aabb->min.z - ray->o.z) * invDir->z;
-  double tzmax = (dirIsNeg[2] ? aabb->min.z : aabb->max.z - ray->o.z) * invDir->z;
+  double tzmin = ((dirIsNeg[2] ? aabb->max.z : aabb->min.z) - ray->o.z) * invDir->z;
+  double tzmax = ((dirIsNeg[2] ? aabb->min.z : aabb->max.z) - ray->o.z) * invDir->z;
   
   if (tmin > tzmax || tzmin > tmax || tzmin > maxDist) return 0;
   
