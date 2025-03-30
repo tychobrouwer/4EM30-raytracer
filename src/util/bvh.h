@@ -168,9 +168,11 @@ int buildBVH
 
 int intersectAABB
 
-  ( Ray*          ray    ,
-    AABB*         aabb   ,
-    Vec3*         invDir );
+  ( Ray*          ray         ,
+    AABB*         aabb        ,
+    const Vec3*   invDir      ,
+    const int     dirIsNeg[3] ,
+    const double  maxDist     );
 
 
 //------------------------------------------------------------------------------

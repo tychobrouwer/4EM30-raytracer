@@ -17,7 +17,8 @@ results = [
   ("BVH static auto omp 16", 2.790),
   ("precompute invDir intersectAABB", 2.640),
   ("fast_fmax and fast_fmin", 0.499),
-  ("early return impl", 0.300)
+  ("recursive to iterative", 0.397),
+  ("optimize intersectAABB", 0.234),
 ]
 
 results.sort(key=lambda x: x[1], reverse=True)

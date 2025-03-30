@@ -57,10 +57,9 @@ void trace
   bvh->nodeCount = 0;
 
   int total = globdat->mesh.faceCount + globdat->spheres.count;
-
   buildBVH(bvh, globdat, 0, total);
 
-  int numThreads = omp_get_max_threads();
+  int numThreads = 16;
   omp_set_num_threads(numThreads);
 
   #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
@@ -88,25 +87,24 @@ void trace
           col = bgcol;
         }
       }
-      else
-      
+      else      
       {
-        Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
+        // Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
             
-        Ray shadowRay;
-        createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
+        // Ray shadowRay;
+        // createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
       
-        Intersect shadowHit;
-        resetIntersect(&shadowHit);
+        // Intersect shadowHit;
+        // resetIntersect(&shadowHit);
       
-        traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
+        // traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
       
-        bool inShadow = (shadowHit.matID != -1);
+        // bool inShadow = (shadowHit.matID != -1);
       
         double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal );
-        if (inShadow) {
-          lightIntensity = 0.0;
-        }
+        // if (inShadow) {
+        //   lightIntensity = 0.0;
+        // }
 
         col = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
       }
