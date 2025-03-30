@@ -221,7 +221,6 @@ void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect)
   while (true)
   {
     BVHNode *node = &bvh->nodes[nodeIndex];
-    
 
     if (intersectAABB(ray, &node->bbox, &invDir, dirIsNeg, maxDist))
     {
