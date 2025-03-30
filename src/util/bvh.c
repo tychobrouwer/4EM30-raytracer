@@ -67,26 +67,30 @@ Vec3 computeCentroidAABB(AABB *aabb)
 //------------------------------------------------------------------------------
 
 
+static int splitAxis = 0;
+
 int comparePrimitives(const void *a, const void *b)
 {
   const PrimitiveInfo *infoA = (const PrimitiveInfo *)a;
   const PrimitiveInfo *infoB = (const PrimitiveInfo *)b;
 
-  if (infoA->centroid.x < infoB->centroid.x)
-    return -1;
-  else if (infoA->centroid.x > infoB->centroid.x)
-    return 1;
+  double centroidA, centroidB;
+  if (splitAxis == 0) {
+      centroidA = infoA->centroid.x;
+      centroidB = infoB->centroid.x;
+  } else if (splitAxis == 1) {
+      centroidA = infoA->centroid.y;
+      centroidB = infoB->centroid.y;
+  } else {
+      centroidA = infoA->centroid.z;
+      centroidB = infoB->centroid.z;
+  }
 
-  if (infoA->centroid.y < infoB->centroid.y)
-    return -1;
-  else if (infoA->centroid.y > infoB->centroid.y)
-    return 1;
-
-  if (infoA->centroid.z < infoB->centroid.z)
-    return -1;
-  else if (infoA->centroid.z > infoB->centroid.z)
-    return 1;
-
+  if (centroidA < centroidB)
+      return -1;
+  else if (centroidA > centroidB)
+      return 1;
+  
   return 0;
 }
 
@@ -149,6 +153,15 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     return nodeIndex;
   }
 
+  Vec3 size = subtractVector(1.0, &node->bbox.max, 1.0, &node->bbox.min);
+  if (size.x > size.y && size.x > size.z) {
+    splitAxis = 0;  // X-axis
+  } else if (size.y > size.z) {
+    splitAxis = 1;  // Y-axis
+  } else {
+    splitAxis = 2;  // Z-axis
+  }
+
   qsort(primitives, count, sizeof(PrimitiveInfo), comparePrimitives);
 
   int mid = count / 2;
@@ -171,18 +184,14 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 
 int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 {
-  const double* bounds[2] = {&aabb->min.x, &aabb->max.x};
-  const double* origin = &ray->o.x;
-  const double* inv = &invDir->x;
-
   double t1, t2;
   double minT = 0.0f, maxT = DBL_MAX;
 
   for (int i = 0; i < 3; i++) {
-    t1 = (bounds[0][i] - origin[i]) * inv[i];
-    t2 = (bounds[1][i] - origin[i]) * inv[i];
+    t1 = ((&aabb->min.x)[i] - (&ray->o.x)[i]) * (&invDir->x)[i];
+    t2 = ((&aabb->max.x)[i] - (&ray->o.x)[i]) * (&invDir->x)[i];
 
-    if (inv[i] < 0.0f) {
+    if ((&invDir->x)[i] < 0.0f) {
       double temp = t1;
       t1 = t2;
       t2 = temp;
@@ -203,39 +212,44 @@ int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
 //------------------------------------------------------------------------------
 
 
-void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int startNodeIndex, Vec3 *invDir)
+void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect)
 { 
   int nodeStack[64];  // Fixed size stack, adjust as needed
   int stackPtr = 0;
-  nodeStack[stackPtr++] = startNodeIndex;
+  int nodeIndex = 0;
 
-  while (stackPtr > 0) {
-    int nodeIndex = nodeStack[--stackPtr];
+  Vec3 invDir = {1.0 / ray->d.x, 1.0 / ray->d.y, 1.0 / ray->d.z};
+  
+  while (true) {
     BVHNode *node = &bvh->nodes[nodeIndex];
 
-    if (!intersectAABB(ray, &node->bbox, invDir)) {    
-      continue;
-    }
-
-    if (node->isLeaf)
-    {
-      for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
+    if (intersectAABB(ray, &node->bbox, &invDir)) {    
+      if (node->isLeaf)
       {
-        if (i < globdat->mesh.faceCount)
+        for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
         {
-          Face face;
-          getFace(&face, i, &globdat->mesh);
-          calcFaceIntersection(intersect, ray, &face);
+          if (i < globdat->mesh.faceCount)
+          {
+            Face face;
+            getFace(&face, i, &globdat->mesh);
+            calcFaceIntersection(intersect, ray, &face);
+          }
+          else
+          {
+            int iSphere = i - globdat->mesh.faceCount;
+            calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
+          }
         }
-        else
-        {
-          int iSphere = i - globdat->mesh.faceCount;
-          calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
-        }
+
+        if (stackPtr == 0) break;
+        nodeIndex = nodeStack[--stackPtr];
+      } else {
+        nodeIndex = node->leftChild;
+        nodeStack[stackPtr++] = node->rightChild;
       }
     } else {
-      nodeStack[stackPtr++] = node->rightChild;
-      nodeStack[stackPtr++] = node->leftChild;
+      if (stackPtr == 0) break;
+      nodeIndex = nodeStack[--stackPtr];
     }
   }
 }

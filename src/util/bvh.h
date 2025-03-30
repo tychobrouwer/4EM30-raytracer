@@ -181,8 +181,6 @@ int intersectAABB
 //      globdat    : Pointer to the global data
 //      ray        : Pointer to the ray
 //      intersect  : Pointer to the intersection
-//      nodeIndex  : Index of the current node
-//      invDir     : Pointer to the inverse direction of the ray
 //
 //------------------------------------------------------------------------------
 
@@ -192,9 +190,7 @@ void traverseBVH
   ( BVH*          bvh          ,
     Globdat*      globdat      ,
     Ray*          ray          ,
-    Intersect*    intersection ,
-    int           nodeIndex    ,
-    Vec3*         invDir       );
+    Intersect*    intersection );
 
 
 #endif

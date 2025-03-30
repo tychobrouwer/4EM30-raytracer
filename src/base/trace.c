@@ -72,8 +72,7 @@ void trace
       
       resetIntersect( &intersection );
       
-      Vec3 invDir = {1.0 / ray.d.x, 1.0 / ray.d.y, 1.0 / ray.d.z};
-      traverseBVH(bvh, globdat, &ray, &intersection, 0, &invDir);
+      traverseBVH(bvh, globdat, &ray, &intersection);
            
       if ( intersection.matID == -1 )
       {
@@ -97,16 +96,10 @@ void trace
         Ray shadowRay;
         createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
       
-        Vec3 invShadowDir = {
-          1.0 / shadowRay.d.x,
-          1.0 / shadowRay.d.y,
-          1.0 / shadowRay.d.z
-        };
-
         Intersect shadowHit;
         resetIntersect(&shadowHit);
       
-        traverseBVH(bvh, globdat, &shadowRay, &shadowHit, 0, &invShadowDir);
+        traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
       
         bool inShadow = (shadowHit.matID != -1);
       
