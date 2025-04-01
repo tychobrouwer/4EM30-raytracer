@@ -9,7 +9,7 @@ src = $(wildcard src/*.c) \
     $(wildcard src/util/*.c)
 
 ifeq ($(OS),Windows_NT)
-	CLEAN_CMD = del src\camera\*.o src\base\*.o src\light\*.o src\materials\*.o src\shapes\*.o src\util\*.o
+	CLEAN_CMD = rm src/camera/*.o src/base/*.o src/light/*.o src/materials/*.o src/shapes/*.o src/util/*.o
 else
 	CLEAN_CMD = rm -f $(obj)
 endif
