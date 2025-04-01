@@ -314,7 +314,7 @@ bool calcTriangleIntersection
     Vertexn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
     Vertexn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[3]];
   }
-  else
+  else if(!tlabel)
   {
     Vertexn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
     Vertexn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[1]];
@@ -323,7 +323,7 @@ bool calcTriangleIntersection
 
   float a = e0 / det;
   float b = e1 / det;
-  float c = 1.0f - a - b;
+  float c = 1.0 - a - b;
 
   intersect->normal.x = a * Vertexn1.x + b * Vertexn2.x + c * Vertexn3.x;
   intersect->normal.y = a * Vertexn1.y + b * Vertexn2.y + c * Vertexn3.y;
