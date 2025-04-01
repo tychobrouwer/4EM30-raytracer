@@ -3,14 +3,12 @@
 #include <stdlib.h>
 #include <float.h>
 
-#define fast_fmin(a, b) ((a) < (b) ? (a) : (b))
-#define fast_fmax(a, b) ((a) > (b) ? (a) : (b))
-
+#define PRIMITIVE_FACE   0
+#define PRIMITIVE_SPHERE 1
 
 //------------------------------------------------------------------------------
 //  computeFaceAABB: Computes the AABB of a face
 //------------------------------------------------------------------------------
-
 
 AABB computeFaceAABB(Face *face)
 {
@@ -28,11 +26,9 @@ AABB computeFaceAABB(Face *face)
   return bbox;
 }
 
-
 //------------------------------------------------------------------------------
 //  computeSphereAABB: Computes the AABB of a sphere
 //------------------------------------------------------------------------------
-
 
 AABB computeSphereAABB(Sphere *sphere)
 {
@@ -44,11 +40,9 @@ AABB computeSphereAABB(Sphere *sphere)
   return bbox;
 }
 
-
 //------------------------------------------------------------------------------
 //  computeCentroidAABB: Computes the centroid of an AABB
 //------------------------------------------------------------------------------
-
 
 Vec3 computeCentroidAABB(AABB *aabb)
 {
@@ -61,35 +55,41 @@ Vec3 computeCentroidAABB(AABB *aabb)
   return centroid;
 }
 
-
 //------------------------------------------------------------------------------
 //  comparePrimitives: Compares two primitives
 //------------------------------------------------------------------------------
 
+static int splitAxis = 0;
 
 int comparePrimitives(const void *a, const void *b)
 {
   const PrimitiveInfo *infoA = (const PrimitiveInfo *)a;
   const PrimitiveInfo *infoB = (const PrimitiveInfo *)b;
 
-  if (infoA->centroid.x < infoB->centroid.x)
-    return -1;
-  else if (infoA->centroid.x > infoB->centroid.x)
-    return 1;
+  double centroidA, centroidB;
+  if (splitAxis == 0)
+  {
+    centroidA = infoA->centroid.x;
+    centroidB = infoB->centroid.x;
+  }
+  else if (splitAxis == 1)
+  {
+    centroidA = infoA->centroid.y;
+    centroidB = infoB->centroid.y;
+  }
+  else
+  {
+    centroidA = infoA->centroid.z;
+    centroidB = infoB->centroid.z;
+  }
 
-  if (infoA->centroid.y < infoB->centroid.y)
+  if (centroidA < centroidB)
     return -1;
-  else if (infoA->centroid.y > infoB->centroid.y)
-    return 1;
-
-  if (infoA->centroid.z < infoB->centroid.z)
-    return -1;
-  else if (infoA->centroid.z > infoB->centroid.z)
+  else if (centroidA > centroidB)
     return 1;
 
   return 0;
 }
-
 
 //------------------------------------------------------------------------------
 //  buildBVH: Builds the BVH tree
@@ -111,11 +111,6 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
   node->bbox.max = (Vec3){-DBL_MAX, -DBL_MAX, -DBL_MAX};
 
   PrimitiveInfo *primitives = (PrimitiveInfo *)malloc(count * sizeof(PrimitiveInfo));
-  if (!primitives)
-  {
-    printf("ERROR: Memory allocation failed for primitives\n");
-    return -1;
-  }
 
   for (int i = 0; i < count; i++)
   {
@@ -125,7 +120,7 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     AABB aabb;
     if (objIndex < globdat->mesh.faceCount)
     {
-      primitives[i].isPrimitive = 0;
+      primitives[i].isPrimitive = PRIMITIVE_FACE;
 
       Face face;
       getFace(&face, objIndex, &globdat->mesh);
@@ -133,15 +128,8 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     }
     else
     {
-      primitives[i].isPrimitive = 1;
+      primitives[i].isPrimitive = PRIMITIVE_SPHERE;
       int sphereIndex = objIndex - globdat->mesh.faceCount;
-
-      if (sphereIndex >= globdat->spheres.count)
-      {
-        printf("ERROR: Sphere index out of bounds: %d\n", sphereIndex);
-        free(primitives);
-        return -1;
-      }
 
       aabb = computeSphereAABB(&globdat->spheres.sphere[sphereIndex]);
     }
@@ -152,7 +140,7 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     node->bbox.max = maxVector(1.0, &node->bbox.max, 1.0, &aabb.max);
   }
 
-  if (count <= 2)
+  if (count <= 4)
   {
     node->firstObject = first;
     node->objectCount = count;
@@ -162,9 +150,17 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
   }
 
   Vec3 size = subtractVector(1.0, &node->bbox.max, 1.0, &node->bbox.min);
-  if (size.x == 0 && size.y == 0 && size.z == 0) {
-    printf("Degenerate AABB detected\n");
-    return -1;
+  if (size.x > size.y && size.x > size.z)
+  {
+    splitAxis = 0; // X-axis
+  }
+  else if (size.y > size.z)
+  {
+    splitAxis = 1; // Y-axis
+  }
+  else
+  {
+    splitAxis = 2; // Z-axis
   }
 
   qsort(primitives, count, sizeof(PrimitiveInfo), comparePrimitives);
@@ -178,7 +174,6 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 
   free(primitives);
 
-
   return nodeIndex;
 }
 
@@ -187,55 +182,84 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 //  intersectAABB: Intersects a ray with an AABB
 //------------------------------------------------------------------------------
 
-
-int intersectAABB(Ray *ray, AABB *aabb, Vec3 *invDir)
+int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3], double maxDist)
 {
-  double tx1 = (aabb->min.x - ray->o.x) * invDir->x;
-  double tx2 = (aabb->max.x - ray->o.x) * invDir->x;
-  double ty1 = (aabb->min.y - ray->o.y) * invDir->y;
-  double ty2 = (aabb->max.y - ray->o.y) * invDir->y;
-  double tz1 = (aabb->min.z - ray->o.z) * invDir->z;
-  double tz2 = (aabb->max.z - ray->o.z) * invDir->z;
-
-  double tmin = fast_fmax(fast_fmax(fast_fmin(tx1, tx2), fast_fmin(ty1, ty2)), fast_fmin(tz1, tz2));
-  double tmax = fast_fmin(fast_fmin(fast_fmax(tx1, tx2), fast_fmax(ty1, ty2)), fast_fmax(tz1, tz2));
-
-  return tmax >= tmin && tmax > 0;
+  double tmin = ((dirIsNeg[0] ? aabb->max.x : aabb->min.x) - ray->o.x) * invDir->x;
+  double tmax = ((dirIsNeg[0] ? aabb->min.x : aabb->max.x) - ray->o.x) * invDir->x;
+    
+  double tymin = ((dirIsNeg[1] ? aabb->max.y : aabb->min.y) - ray->o.y) * invDir->y;
+  double tymax = ((dirIsNeg[1] ? aabb->min.y : aabb->max.y) - ray->o.y) * invDir->y;
+  
+  if (tmin > tymax || tymin > tmax || tmin > maxDist) return 0;
+  
+  if (tymin > tmin) tmin = tymin;
+  if (tymax < tmax) tmax = tymax;
+  
+  double tzmin = ((dirIsNeg[2] ? aabb->max.z : aabb->min.z) - ray->o.z) * invDir->z;
+  double tzmax = ((dirIsNeg[2] ? aabb->min.z : aabb->max.z) - ray->o.z) * invDir->z;
+  
+  if (tmin > tzmax || tzmin > tmax || tzmin > maxDist) return 0;
+  
+  return 1;
 }
-
 
 //------------------------------------------------------------------------------
 //  traverseBVH: Traverses the BVH tree
 //------------------------------------------------------------------------------
 
-
-void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect, int nodeIndex, Vec3 *invDir)
+void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect)
 {
-  BVHNode *node = &bvh->nodes[nodeIndex];
+  int nodeStack[1028];
+  int stackPtr = 0;
+  int nodeIndex = 0;
 
-  if (!intersectAABB(ray, &node->bbox, invDir)) {    
-    return;
-  }
+  const Vec3 invDir = {1.0 / ray->d.x, 1.0 / ray->d.y, 1.0 / ray->d.z};
+  const int dirIsNeg[3] = {invDir.x < 0, invDir.y < 0, invDir.z < 0};
 
-  if (node->isLeaf)
+  double maxDist = (intersect->t < DBL_MAX) ? intersect->t : DBL_MAX;
+
+  while (true)
   {
-    for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
+    BVHNode *node = &bvh->nodes[nodeIndex];
+
+    if (intersectAABB(ray, &node->bbox, &invDir, dirIsNeg, maxDist))
     {
-      if (i < globdat->mesh.faceCount)
+      if (node->isLeaf)
       {
-        Face face;
-        getFace(&face, i, &globdat->mesh);
-        calcFaceIntersection(intersect, ray, &face);
+        for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
+        {
+          if (intersect->t < maxDist) {
+            maxDist = intersect->t;
+          }
+
+          if (i < globdat->mesh.faceCount)
+          {
+            Face face;
+            getFace(&face, i, &globdat->mesh);
+            calcFaceIntersection(intersect, ray, &face);
+          }
+          else
+          {
+            int iSphere = i - globdat->mesh.faceCount;
+            calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
+          }
+        }
+
+        if (stackPtr == 0)
+          break;
+        nodeIndex = nodeStack[--stackPtr];
       }
       else
       {
-        int iSphere = i - globdat->mesh.faceCount;
-        calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
+        nodeIndex = node->leftChild;
+        nodeStack[stackPtr++] = node->rightChild;
       }
     }
-    return;
+    else
+    {
+      if (stackPtr == 0)
+        break;
+      nodeIndex = nodeStack[--stackPtr];
+    }
   }
-
-  traverseBVH(bvh, globdat, ray, intersect, node->leftChild, invDir);
-  traverseBVH(bvh, globdat, ray, intersect, node->rightChild, invDir);
 }

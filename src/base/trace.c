@@ -57,14 +57,12 @@ void trace
   bvh->nodeCount = 0;
 
   int total = globdat->mesh.faceCount + globdat->spheres.count;
-
   buildBVH(bvh, globdat, 0, total);
 
-  int numThreads = omp_get_max_threads();
-  int pixelsPerThread = globdat->film->width * globdat->film->height / numThreads;
+  int numThreads = 16;
   omp_set_num_threads(numThreads);
 
-  #pragma omp parallel for collapse(2) schedule(static, pixelsPerThread) private(ray, intersection, col)
+  #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
@@ -73,8 +71,7 @@ void trace
       
       resetIntersect( &intersection );
       
-      Vec3 invDir = {1.0 / ray.d.x, 1.0 / ray.d.y, 1.0 / ray.d.z};
-      traverseBVH(bvh, globdat, &ray, &intersection, 0, &invDir);
+      traverseBVH(bvh, globdat, &ray, &intersection);
            
       if ( intersection.matID == -1 )
       {
@@ -90,24 +87,17 @@ void trace
           col = bgcol;
         }
       }
-      else
-      
+      else      
       {
         Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
             
         Ray shadowRay;
         createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
       
-        Vec3 invShadowDir = {
-          1.0 / shadowRay.d.x,
-          1.0 / shadowRay.d.y,
-          1.0 / shadowRay.d.z
-        };
-
         Intersect shadowHit;
         resetIntersect(&shadowHit);
       
-        traverseBVH(bvh, globdat, &shadowRay, &shadowHit, 0, &invShadowDir);
+        traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
       
         bool inShadow = (shadowHit.matID != -1);
       
@@ -122,6 +112,8 @@ void trace
       storePixelRGB( globdat->film , ix , iy , &col );
     }
   }
+
+  free(bvh);
 }
 
 //------------------------------------------------------------------------------
