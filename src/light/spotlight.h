@@ -16,7 +16,7 @@
  #include <stdbool.h>
  #include "../util/vector.h"
 
- #define MAX_SPOTLIGHTS 10
+
  
  //------------------------------------------------------------------------------
  //  Declaration of the Spotlight type (a spotlight)
@@ -32,7 +32,7 @@
 
  typedef struct 
  {
-    Spotlight   spotlight[MAX_SPOTLIGHTS];
+    Spotlight *spotlight;
     int count;
  }  Spotlights;
  

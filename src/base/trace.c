@@ -98,25 +98,46 @@ void trace
         createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
         traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
         
-        int inShadow = (shadowHit.matID != -1);
-        double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal );
+
+        double totalLight = 0.0;
+        if (shadowHit.matID ==-1)
+          {
+            totalLight += dotProduct( &globdat->sun.d, &intersection.normal);
+
+
+          }
+
+        // int inShadow = (shadowHit.matID != -1);
+        // double totalLight = dotProduct( &globdat->sun.d , &intersection.normal );
 
         int iSpot;
         for (iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
         {
-          Vec3 spotlightDirection = subtractVector(1.0, &hitPoint, 1.0, &globdat->spotlights.spotlight[iSpot].coord);
+          Vec3 spotlightDirection = subtractVector(1.0, &globdat->spotlights.spotlight[iSpot].coord, 1.0, &hitPoint);
+
+          unit(&spotlightDirection);  // Now spotlightDirection has length = 1
+          spotlightDirection = multiplyVector( globdat->spotlights.spotlight[iSpot].intensity, &spotlightDirection);
+          
 
           resetIntersect(&shadowHit);
           createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &spotlightDirection, &intersection.normal);
           traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
 
-          inShadow = inShadow && (shadowHit.matID !=-1);
-          lightIntensity = lightIntensity * dotProduct( &spotlightDirection, &intersection.normal);
+          // inShadow = inShadow && (shadowHit.matID !=-1);
+          
+          if (shadowHit.matID ==-1)
+          {
+            totalLight += dotProduct( &spotlightDirection, &intersection.normal);
+
+
+          }
         }
         
-        if (inShadow) {
-          lightIntensity = 0.0;
-        }
+        double lightIntensity = totalLight / (1+globdat->spotlights.count);
+        
+        // if (inShadow) {
+        //   lightIntensity = 0.0;
+        // }
 
         col = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
       }

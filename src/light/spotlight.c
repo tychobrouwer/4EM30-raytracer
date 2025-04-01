@@ -12,7 +12,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "spotlight.h"
+
 
 //------------------------------------------------------------------------------
 //  readspotlightData: Reads the spotlight data from a file
@@ -30,6 +32,7 @@ void readSpotlightData
   int iLight;
 
   fscanf(fin, "%d", &nLight);
+  spotlights->spotlight = (Spotlight*)malloc(nLight * sizeof(Spotlight));
 
   for (iLight = 0; iLight < nLight; iLight++)
   {
