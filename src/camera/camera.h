@@ -26,6 +26,7 @@
 typedef struct 
 {
   Vec3       origin;
+  Vec3       rotation;
   double     fov;
   double     y0,z0,dx;
 } CameraData;

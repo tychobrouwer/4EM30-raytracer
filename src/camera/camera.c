@@ -16,7 +16,8 @@
 #include "camera.h"
 #include "../util/mathutils.h"
 
-const char *CENTRE = "Centre";
+const char *LOCATION = "Location";
+const char *ROTATION = "Rotation";
 const char *FOV    = "Fov";
 
 //------------------------------------------------------------------------------
@@ -36,9 +37,13 @@ void readCameraData
 
   while( strcmp( label , "End" ) != 0 )
   {
-    if( strcmp( label , CENTRE ) == 0 )
+    if( strcmp( label , LOCATION ) == 0 )
     {
       fscanf( fin , "%le %le %le" , &cam->origin.x , &cam->origin.y , &cam->origin.z );
+    }
+    else if( strcmp( label , ROTATION ) == 0 )
+    {
+      fscanf( fin , "%le %le %le" , &cam->rotation.x , &cam->rotation.y , &cam->rotation.z );
     }
     else if ( strcmp( label , FOV ) == 0 )
     {
@@ -51,6 +56,7 @@ void readCameraData
   printf("  CAMERA\n");
   printf("    Position ................ : %f %f %f \n",cam->origin.x , 
             cam->origin.y , cam->origin.z);
+  printf("    Rotation ................ : %f %f %f \n", cam->rotation.x , cam->rotation.y , cam->rotation.z);
   printf("    Field Of View ........... : %f\n",cam->fov);
   printf("\n");  
 }
