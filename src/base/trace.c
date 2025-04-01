@@ -91,17 +91,29 @@ void trace
       {
         Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
             
-        Ray shadowRay;
-        createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
-      
         Intersect shadowHit;
         resetIntersect(&shadowHit);
-      
+
+        Ray shadowRay;
+        createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
         traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
-      
-        bool inShadow = (shadowHit.matID != -1);
-      
+        
+        int inShadow = (shadowHit.matID != -1);
         double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal );
+
+        int iSpot;
+        for (iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
+        {
+          Vec3 spotlightDirection = subtractVector(1.0, &hitPoint, 1.0, &globdat->spotlights.spotlight[iSpot].coord);
+
+          resetIntersect(&shadowHit);
+          createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &spotlightDirection, &intersection.normal);
+          traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
+
+          inShadow = inShadow && (shadowHit.matID !=-1);
+          lightIntensity = lightIntensity * dotProduct( &spotlightDirection, &intersection.normal);
+        }
+        
         if (inShadow) {
           lightIntensity = 0.0;
         }

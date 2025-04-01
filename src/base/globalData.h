@@ -21,6 +21,8 @@
 #include "../util/backGroundImage.h"
 #include "../util/film.h"
 #include "../util/vector.h"
+#include "../light/spotlight.h"
+
 
 
 //------------------------------------------------------------------------------
@@ -38,6 +40,7 @@ typedef struct
   Mesh        mesh;
   
   Sun         sun;
+  Spotlights  spotlights;
 
   char        filename[40];
 } Globdat;

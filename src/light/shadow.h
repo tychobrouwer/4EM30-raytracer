@@ -10,3 +10,4 @@
 void createShadowRay(Globdat* globdat, BVH* bvh, Ray *shadowRay, Vec3* point, Vec3* lightDir, Vec3* normal);
 
 #endif
+

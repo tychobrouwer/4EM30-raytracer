@@ -26,6 +26,7 @@ const char *FACES     = "Faces";
 const char *VERTICES  = "Vertices";
 const char *FILENAME  = "Filename";
 const char *MATERIALS = "Materials";
+const char *SPOTLIGHTS = "Spotlights";
 
 //------------------------------------------------------------------------------
 //  readInput: Reads the input data from a file
@@ -74,6 +75,10 @@ void readInput
     else if ( strcmp( label , SUN ) == 0 )
     {
       readSunData( fin , &globdat->sun );
+    }
+    else if ( strcmp( label , SPOTLIGHTS ) == 0 )
+    {
+      readSpotlightData( fin , &globdat->spotlights );
     }
     else if ( strcmp( label , SPHERES ) == 0 )
     {
