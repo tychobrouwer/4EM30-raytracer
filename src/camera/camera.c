@@ -16,7 +16,7 @@
 #include "camera.h"
 #include "../util/mathutils.h"
 
-const char *LOCATION = "Location";
+const char *LOCATION = "Centre";
 const char *ROTATION = "Rotation";
 const char *FOV    = "Fov";
 
@@ -43,7 +43,7 @@ void readCameraData
     }
     else if( strcmp( label , ROTATION ) == 0 )
     {
-      fscanf( fin , "%le %le %le" , &cam->rotation.x , &cam->rotation.y , &cam->rotation.z );
+      fscanf( fin , "%le %le %le" , &cam->tilt.x , &cam->tilt.y , &cam->tilt.z);
     }
     else if ( strcmp( label , FOV ) == 0 )
     {
@@ -54,9 +54,9 @@ void readCameraData
   }
 
   printf("  CAMERA\n");
-  printf("    Position ................ : %f %f %f \n",cam->origin.x , 
+  printf("    Location ................ : %f %f %f \n",cam->origin.x , 
             cam->origin.y , cam->origin.z);
-  printf("    Rotation ................ : %f %f %f \n", cam->rotation.x , cam->rotation.y , cam->rotation.z);
+  printf("    Rotation ................ : %f %f %f \n", cam->tilt.x , cam->tilt.y , cam->tilt.z);
   printf("    Field Of View ........... : %f\n",cam->fov);
   printf("\n");  
 }
@@ -99,11 +99,24 @@ void generateRay
     CameraData*   cam )
 
 {
-  ray->o.x = cam->origin.x;
+  double cosY = cos(cam->tilt.y * PICONST / 180);
+  double sinY = sin(cam->tilt.y * PICONST / 180);
+
+  ray->o.x = cam->origin.x * cosY - cam->origin.z * sinY;
+  // printf("%f %f \n",cam->origin.x , ray->o.x);
   ray->o.y = cam->origin.y;
-  ray->o.z = cam->origin.z;
+  ray->o.z = cam->origin.x * sinY + cam->origin.z * cosY;
   
-  ray->d.x = 1.0;
-  ray->d.y = cam->y0-ix*cam->dx;
-  ray->d.z = cam->z0+iy*cam->dx;
+  double dx = 1.0;
+  double dy = cam->y0-ix*cam->dx;
+  double dz = cam->z0+iy*cam->dx;
+
+  ray->d.x = dx*cosY -dz * sinY;
+  ray->d.y = dy;
+  ray->d.z = dx * sinY + dz *cosY;
+
+  double length = sqrt(ray->d.x * ray->d.x + ray->d.y * ray->d.y + ray->d.z * ray->d.z);
+  ray->d.x /= length;
+  ray->d.y /= length;
+  ray->d.z /= length;
 }
