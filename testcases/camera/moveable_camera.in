@@ -1,8 +1,8 @@
-Filename moveable_camera.bmp
+Filename demo_moveable_camera4.bmp
 
 Camera
-  Location 10. 0. 2.
-  Rotation 0. 0. 0.
+  Centre 5. 2. 2.
+  Rotation 0. -4. 0.
   Fov    25.
 End
 
