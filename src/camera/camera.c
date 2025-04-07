@@ -99,21 +99,57 @@ void generateRay
     CameraData*   cam )
 
 {
-  double cosY = cos(cam->tilt.y * PICONST / 180);
-  double sinY = sin(cam->tilt.y * PICONST / 180);
+  double yaw    = cam->tilt.y * PICONST / 180;
+  double pitch  = cam->tilt.x * PICONST / 180;
+  double roll   = cam->tilt.z * PICONST / 180;
 
-  ray->o.x = cam->origin.x * cosY - cam->origin.z * sinY;
-  // printf("%f %f \n",cam->origin.x , ray->o.x);
-  ray->o.y = cam->origin.y;
-  ray->o.z = cam->origin.x * sinY + cam->origin.z * cosY;
+  double cy = cos(yaw),     sy = sin(yaw);
+  double cx = cos(pitch), sx = sin(pitch);
+  double cz = cos(roll),   sz = sin(roll);
+
+
+  // double cosY = cos(cam->tilt.y * PICONST / 180);
+  // double sinY = sin(cam->tilt.y * PICONST / 180);
+
+  // double cosX = cos(cam->tilt.x * PICONST / 180);
+  // double sinX = sin(cam->tilt.x * PICONST / 180);
+  ray->o = cam->origin;
+
+  // ray->o.x = cam->origin.x * cosY - cam->origin.z * sinY;
+  // // printf("%f %f \n",cam->origin.x , ray->o.x);
+  // ray->o.y = cam->origin.y * cosX - cam->origin.z * sinX;
+  // ray->o.z = cam->origin.x * sinY * sinX + cam->origin.z * cosY * cosX;
   
+  double R[3][3];
+
+  R[0][0] = cy * cz;
+  R[0][1] = cy * sz;
+  R[0][2] = -sy;
+
+  R[1][0] = sx * sy * cz - cx * sz;
+  R[1][1] = sx * sy * sz + cx * cz;
+  R[1][2] = sx * cy;
+
+  R[2][0] = cx * sy * cz + sx * sz;
+  R[2][1] = cx * sy * sz - sx * cz;
+  R[2][2] = cx * cy;
+
+
   double dx = 1.0;
   double dy = cam->y0-ix*cam->dx;
   double dz = cam->z0+iy*cam->dx;
 
-  ray->d.x = dx*cosY -dz * sinY;
-  ray->d.y = dy;
-  ray->d.z = dx * sinY + dz *cosY;
+  // double x1 = dx;
+  // double y1 = dy * cosPitch - dz *sinPitch;
+  // double z1 = dy * sinPitch + dz * cosPitch;
+
+  ray->d.x = R[0][0]*dx + R[0][1]*dy + R[0][2]*dz;
+  ray->d.y = R[1][0]*dx + R[1][1]*dy + R[1][2]*dz;
+  ray->d.z = R[2][0]*dx + R[2][1]*dy + R[2][2]*dz;
+
+  // ray->d.x = dx*cosY -dz * sinY;
+  // ray->d.y = dy*cosX -dz * sinX;
+  // ray->d.z = dx * sinY * sinX + dz *cosY * cosX;
 
   double length = sqrt(ray->d.x * ray->d.x + ray->d.y * ray->d.y + ray->d.z * ray->d.z);
   ray->d.x /= length;
