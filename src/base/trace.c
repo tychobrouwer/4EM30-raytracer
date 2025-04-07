@@ -12,6 +12,8 @@
  *
  *----------------------------------------------------------------------------*/
 
+#include <stdlib.h>
+#include <omp.h>
 #include "trace.h"
 #include "../camera/camera.h"
 #include "../materials/materials.h"
@@ -35,12 +37,12 @@ void trace
 
   int ix,iy;
   double u,v;
-
+  
   Ray   ray;
   Color col;
 
   Intersect intersection;
-
+  #pragma omp parallel for private(iy,u,v,ray,col,intersection)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
@@ -52,6 +54,9 @@ void trace
       for (int sample = 0; sample < globdat->cam.samples_per_pixel; sample++)
       {
       // Generate random u, v values between 0 and 1
+      // u = drand48();
+      // v = drand48();
+      
       u = (rand() % 1000) / 1000.0;  // Random number between 0 and 1
       v = (rand() % 1000) / 1000.0;  // Random number between 0 and 1
 
@@ -95,10 +100,11 @@ void trace
         
           jy = (int)ny*(theta)/3.14;
           jx = (int)nx*(3.14-phi)/6.28;
-                  
-          col.red += getBGImagePixelValue( &globdat->bgimage , jx , jy ).red;
-          col.green += getBGImagePixelValue( &globdat->bgimage , jx , jy ).green;
-          col.blue += getBGImagePixelValue( &globdat->bgimage , jx , jy ).blue;
+              
+          Color bgCol = getBGImagePixelValue( &globdat->bgimage , jx , jy );
+          col.red += bgCol.red;
+          col.green += bgCol.green;
+          col.blue += bgCol.blue;
         }
         else
         {
@@ -109,9 +115,10 @@ void trace
       }
       else
       {
-        col.red += getColor( intensity , &globdat->materials.mat[intersection.matID] ).red;
-        col.green += getColor( intensity , &globdat->materials.mat[intersection.matID] ).green;
-        col.blue += getColor( intensity , &globdat->materials.mat[intersection.matID] ).blue;
+        Color getCol = getColor( intensity , &globdat->materials.mat[intersection.matID] );
+        col.red += getCol.red;
+        col.green += getCol.green;
+        col.blue += getCol.blue;
 
       }
     }
