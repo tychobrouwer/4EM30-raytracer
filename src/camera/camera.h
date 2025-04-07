@@ -25,8 +25,7 @@
 
 typedef struct 
 {
-  Vec3       origin;
-  Vec3       rotation;
+  Vec3       origin,tilt;
   double     fov;
   double     y0,z0,dx;
 } CameraData;
@@ -81,7 +80,7 @@ void generateRay
     int           ix  ,
     int           iy  ,
     CameraData*   cam );
-  
+
 #endif
 
 
