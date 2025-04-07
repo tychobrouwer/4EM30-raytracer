@@ -34,6 +34,7 @@ void trace
   printf("\n  +++ Start tracing +++\n");
 
   int ix,iy;
+  double u,v;
 
   Ray   ray;
   Color col;
@@ -44,7 +45,17 @@ void trace
   {
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
     {
-      generateRay( &ray , ix , iy , &globdat->cam );
+      col.red = 0;
+      col.green = 0;
+      col.blue = 0;
+      
+      for (int sample = 0; sample < globdat->cam.samples_per_pixel; sample++)
+      {
+      // Generate random u, v values between 0 and 1
+      u = (rand() % 1000) / 1000.0;  // Random number between 0 and 1
+      v = (rand() % 1000) / 1000.0;  // Random number between 0 and 1
+
+      generateRay( &ray , ix , iy , u, v, &globdat->cam );
       
       resetIntersect( &intersection );
       
@@ -85,7 +96,9 @@ void trace
           jy = (int)ny*(theta)/3.14;
           jx = (int)nx*(3.14-phi)/6.28;
                   
-          col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
+          col.red += getBGImagePixelValue( &globdat->bgimage , jx , jy ).red;
+          col.green += getBGImagePixelValue( &globdat->bgimage , jx , jy ).green;
+          col.blue += getBGImagePixelValue( &globdat->bgimage , jx , jy ).blue;
         }
         else
         {
@@ -96,9 +109,16 @@ void trace
       }
       else
       {
-        col = getColor( intensity , &globdat->materials.mat[intersection.matID] );
+        col.red += getColor( intensity , &globdat->materials.mat[intersection.matID] ).red;
+        col.green += getColor( intensity , &globdat->materials.mat[intersection.matID] ).green;
+        col.blue += getColor( intensity , &globdat->materials.mat[intersection.matID] ).blue;
+
       }
-           
+    }
+      col.red /= globdat->cam.samples_per_pixel;
+      col.green /= globdat->cam.samples_per_pixel;
+      col.blue /= globdat->cam.samples_per_pixel;
+
       storePixelRGB( globdat->film , ix , iy , &col );
     }
   }
