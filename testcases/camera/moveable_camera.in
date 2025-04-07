@@ -1,9 +1,10 @@
-Filename demo_moveable_camera4.bmp
+Filename demo_moveable_camera8.bmp
 
 Camera
   Centre 5. 2. 2.
-  Rotation 0. -4. 0.
+  Rotation 0. 0. 0.
   Fov    25.
+  Samples 5
 End
 
 Film

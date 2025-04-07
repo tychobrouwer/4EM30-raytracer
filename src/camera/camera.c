@@ -19,6 +19,7 @@
 const char *LOCATION = "Centre";
 const char *ROTATION = "Rotation";
 const char *FOV    = "Fov";
+const char *SAMPLE = "Samples";
 
 //------------------------------------------------------------------------------
 //  readCameraData: Reads the camera data from a file
@@ -49,6 +50,11 @@ void readCameraData
     {
       fscanf( fin , "%le" , &cam->fov );
     }
+    else if ( strcmp( label , SAMPLE ) == 0 )
+    {
+      fscanf( fin , "%d" , &cam->samples_per_pixel );
+      printf("DEBUG: Read samples_per_pixel = %d\n", cam->samples_per_pixel);
+    }
 
     fscanf( fin , "%s" , label );
   }
@@ -58,6 +64,7 @@ void readCameraData
             cam->origin.y , cam->origin.z);
   printf("    Rotation ................ : %f %f %f \n", cam->tilt.x , cam->tilt.y , cam->tilt.z);
   printf("    Field Of View ........... : %f\n",cam->fov);
+  printf("    Number of samples ........: %d \n", cam->samples_per_pixel);
   printf("\n");  
 }
 
@@ -96,9 +103,15 @@ void generateRay
   ( Ray*          ray ,
     int           ix  ,
     int           iy  ,
+    double        u   ,
+    double        v   ,
     CameraData*   cam )
 
-{
+// {for (int sample = 0; sample < cam->samples_per_pixel; sample ++)
+  {
+  // double u_offset = rand()%1000 / 1000;
+  // double v_offset = rand()%1000 / 1000;
+  
   double yaw    = cam->tilt.y * PICONST / 180;
   double pitch  = cam->tilt.x * PICONST / 180;
   double roll   = cam->tilt.z * PICONST / 180;
@@ -136,8 +149,8 @@ void generateRay
 
 
   double dx = 1.0;
-  double dy = cam->y0-ix*cam->dx;
-  double dz = cam->z0+iy*cam->dx;
+  double dy = cam->y0-(ix+u-0.5)*cam->dx;
+  double dz = cam->z0+(iy-v-0.5)*cam->dx;
 
   // double x1 = dx;
   // double y1 = dy * cosPitch - dz *sinPitch;
@@ -156,3 +169,4 @@ void generateRay
   ray->d.y /= length;
   ray->d.z /= length;
 }
+// }

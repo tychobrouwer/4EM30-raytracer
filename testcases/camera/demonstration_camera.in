@@ -1,7 +1,7 @@
 Filename demo_camera.bmp
 
 Camera
-  Centre 10. 0. 2.
+  Location 10. 0. 2.
   Fov    25.
 End
 
