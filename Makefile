@@ -1,4 +1,4 @@
-CC = g++
+CC = gcc
 
 src = $(wildcard src/*.c) \
 	$(wildcard src/camera/*.c) \
@@ -17,15 +17,19 @@ endif
 
 obj = $(src:.c=.o)
 
-LDFLAGS = -lm -O3
+LDFLAGS = -lm -O3 -fopenmp
+CFLAGS = -lm -O3 -fopenmp
 
 all: raytracer test
 
 raytracer: $(obj)
-	$(CC) src/main/raytracer.c -o bin/$@.exe $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) src/main/raytracer.c -o bin/$@.exe $^ $(LDFLAGS)
 
 test: $(obj)
-	$(CC) src/main/test.c -o bin/$@.exe $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) src/main/test.c -o bin/$@.exe $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 .PHONY: clean
 

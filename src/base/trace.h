@@ -31,3 +31,22 @@ void trace
 #endif
 
 
+//------------------------------------------------------------------------------
+//  mapRayToBGCoordinates: Maps the ray direction to the background image
+//                         coordinates
+//
+//  Arguments:
+//      jx      : Pointer to the x-coordinate in the background image
+//      jy      : Pointer to the y-coordinate in the background image
+//      ray     : Ray structure
+//      globdat : Pointer to the global data
+//
+//------------------------------------------------------------------------------
+
+
+void mapRayToBGCoordinates
+
+  ( int* jx,
+    int* jy,
+    Ray ray,
+    Globdat* globdat );
