@@ -181,7 +181,7 @@ bool calcFaceIntersection
   bool tlabel;
   if ( face->vertexCount == 3 )
   {
-    tlabel =true;
+    tlabel = false;
     return calcTriangleIntersection( intersect , ray , face, mesh, iShp, tlabel);
   }
   else
@@ -306,30 +306,32 @@ bool calcTriangleIntersection
 
   intersect->matID = face->matID;
 
-  Vec3 Vertexn1, Vertexn2, Vertexn3;
+  Vec3 Vn1, Vn2, Vn3;
 
   if (tlabel)
   {
-    Vertexn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vertexn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
-    Vertexn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[3]];
+    Vn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[3]];
   }
   else if(!tlabel)
   {
-    Vertexn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vertexn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[1]];
-    Vertexn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[1]];
+    Vn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
   }
+  fflush(stdout);
 
   float a = e0 / det;
   float b = e1 / det;
   float c = 1.0 - a - b;
 
-  intersect->normal.x = a * Vertexn1.x + b * Vertexn2.x + c * Vertexn3.x;
-  intersect->normal.y = a * Vertexn1.y + b * Vertexn2.y + c * Vertexn3.y;
-  intersect->normal.z = a * Vertexn1.z + b * Vertexn2.z + c * Vertexn3.z;
+  intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
+  intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
+  intersect->normal.z = a * Vn1.z + b * Vn2.z + c * Vn3.z;
 
   unit(&intersect->normal);
+
   return true;
 }
 
