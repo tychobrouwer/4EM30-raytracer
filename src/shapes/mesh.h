@@ -55,6 +55,7 @@ typedef struct
 {
   Vec3       *vertices;
   FaceData   *faces;
+  Vec3       *VertexNormal;
   
   int        vertexCount;
   int        faceCount;
@@ -171,7 +172,9 @@ bool calcFaceIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
-    Face*         face      );
+    Face*         face      ,
+    Mesh*         mesh      ,
+    int           iShp      );
 
 
 //------------------------------------------------------------------------------
@@ -193,7 +196,10 @@ bool calcTriangleIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
-    Face*         face      );
+    Face*         face      ,
+    Mesh*         mesh      ,
+    int           iShp      ,
+    bool          tlabel    );
     
     
 //------------------------------------------------------------------------------

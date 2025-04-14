@@ -236,7 +236,7 @@ void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect)
           {
             Face face;
             getFace(&face, i, &globdat->mesh);
-            calcFaceIntersection(intersect, ray, &face);
+            calcFaceIntersection(intersect, ray, &face, &globdat->mesh, i);
           }
           else
           {
