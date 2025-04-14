@@ -28,6 +28,11 @@ void preprocess
 
   ( Globdat   *globdat );
 
+
+
+void calcVertexNormal
+  ( Mesh*   mesh     );
+
 #endif
 
 
