@@ -35,11 +35,7 @@ void readVertexData
   fscanf( fin , "%d" , &nVer );
   
   mesh->vertices = (Vec3*)malloc(nVer * sizeof(Vec3));
-<<<<<<< Updated upstream
-  mesh->VertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
-=======
   mesh->vertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
->>>>>>> Stashed changes
 
   for( iVer = 0 ; iVer < nVer ; iVer++ )
   {
@@ -221,6 +217,7 @@ bool calcFaceIntersection
 }
 
 
+
 //-----------------------------------------------------------------------------
 // calcTriangleIntersection: Calculates the intersection of a ray with a
 //                           triangle defined by a face
@@ -313,28 +310,21 @@ bool calcTriangleIntersection
 
   if (tlabel)
   {
-    Vn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
-    Vn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[3]];
+    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[3]];
   }
   else if(!tlabel)
   {
-    Vn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[1]];
-    Vn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[1]];
+    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
   }
   fflush(stdout);
 
   float a = e0 / det;
   float b = e1 / det;
   float c = 1.0 - a - b;
-<<<<<<< Updated upstream
-=======
-
-  intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
-  intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
-  intersect->normal.z = a * Vn1.z + b * Vn2.z + c * Vn3.z;
->>>>>>> Stashed changes
 
   intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
   intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
@@ -344,6 +334,8 @@ bool calcTriangleIntersection
 
   return true;
 }
+
+   
 
 //------------------------------------------------------------------------------
 //  freeMesh: Frees the memory of the mesh

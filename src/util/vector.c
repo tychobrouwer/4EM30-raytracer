@@ -40,7 +40,7 @@ double unit
 //------------------------------------------------------------------------------
 
 
-inline double length
+double length
 
   ( Vec3*  v )
 
@@ -54,7 +54,7 @@ inline double length
 //------------------------------------------------------------------------------
 
 
-inline double dotProduct
+double dotProduct
 
   ( Vec3*  a ,
     Vec3*  b )
@@ -176,13 +176,18 @@ int maxDimension
   ( Vec3*   a )
 
 {
-  double absVals[3] = {fabs(a->x), fabs(a->y), fabs(a->z)};
-  int maxIndex = 0;
-
-  if (absVals[1] > absVals[maxIndex]) maxIndex = 1;
-  if (absVals[2] > absVals[maxIndex]) maxIndex = 2;
-
-  return maxIndex;
+  if( fabs(a->x) > fabs(a->y) && fabs(a->x) > fabs(a->z) )
+  {
+    return 0;
+  }
+  else if (fabs(a->y) > fabs(a->z) )
+  {
+    return 1;
+  }
+  else
+  {
+    return 2;
+  }
 }
 
 //------------------------------------------------------------------------------

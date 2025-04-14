@@ -24,10 +24,6 @@ void preprocess
 
 {
   initialiseCamera( &globdat->cam , globdat->film );
-<<<<<<< Updated upstream
-}
-
-=======
   calcVertexNormal( &globdat ->mesh );
 }
 
@@ -74,4 +70,3 @@ void calcVertexNormal( Mesh* mesh )
     unit(&mesh->vertexNormal[i]);
   }
 }
->>>>>>> Stashed changes
