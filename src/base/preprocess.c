@@ -24,12 +24,16 @@ void preprocess
 
 {
   initialiseCamera( &globdat->cam , globdat->film );
-  calcVertexNormal ( &globdat ->mesh);
+<<<<<<< Updated upstream
+}
+
+=======
+  calcVertexNormal( &globdat ->mesh );
 }
 
 
 //-------------------------------------------------------------
-// calcVertexNormal
+// calcvertexNormal
 //-------------------------------------------------------------
 
 void calcVertexNormal( Mesh* mesh )
@@ -38,9 +42,9 @@ void calcVertexNormal( Mesh* mesh )
 
   for (int i = 0; i < mesh->vertexCount; i++)
   {
-    mesh->VertexNormal[i].x = 0;
-    mesh->VertexNormal[i].y = 0;
-    mesh->VertexNormal[i].z = 0;
+    mesh->vertexNormal[i].x = 0;
+    mesh->vertexNormal[i].y = 0;
+    mesh->vertexNormal[i].z = 0;
   }
 
   for (int i = 0; i < mesh->faceCount; i++)
@@ -61,12 +65,13 @@ void calcVertexNormal( Mesh* mesh )
     for (int j = 0; j < mesh->faces[i].vertexCount; j++)
     {
       vertexID = vertexIDs[j];
-      mesh->VertexNormal[vertexID] = addVector(1.0, &mesh->VertexNormal[vertexID], 1.0, &faceNormal);
+      mesh->vertexNormal[vertexID] = addVector(1.0, &mesh->vertexNormal[vertexID], 1.0, &faceNormal);
     }
   }
 
   for (int i = 0; i < mesh->vertexCount; i++)
   {
-    unit(&mesh->VertexNormal[i]);
+    unit(&mesh->vertexNormal[i]);
   }
 }
+>>>>>>> Stashed changes

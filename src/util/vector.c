@@ -40,7 +40,7 @@ double unit
 //------------------------------------------------------------------------------
 
 
-double length
+inline double length
 
   ( Vec3*  v )
 
@@ -54,7 +54,7 @@ double length
 //------------------------------------------------------------------------------
 
 
-double dotProduct
+inline double dotProduct
 
   ( Vec3*  a ,
     Vec3*  b )
@@ -125,30 +125,6 @@ Vec3 addVector
   return c;
 }
 
-
-//------------------------------------------------------------------------------
-//  subtractVector: Subtracts two vectors, each multiplied by a factor
-//------------------------------------------------------------------------------
-
-
-Vec3 subtractVector
-
-  ( double  fa ,
-    Vec3*   a  ,
-    double  fb ,
-    Vec3*   b  )
-
-{
-  Vec3 c;
-
-  c.x = a->x - b->x;
-  c.y = a->y - b->y;
-  c.z = a->z - b->z;
-
-  return c;
-}
-
-
 //------------------------------------------------------------------------------
 //  minVector: Returns the minimum of two vectors, each multiplied by a factor
 //------------------------------------------------------------------------------
@@ -200,25 +176,20 @@ int maxDimension
   ( Vec3*   a )
 
 {
-  if( fabs(a->x) > fabs(a->y) && fabs(a->x) > fabs(a->z) )
-  {
-    return 0;
-  }
-  else if (fabs(a->y) > fabs(a->z) )
-  {
-    return 1;
-  }
-  else
-  {
-    return 2;
-  }
+  double absVals[3] = {fabs(a->x), fabs(a->y), fabs(a->z)};
+  int maxIndex = 0;
+
+  if (absVals[1] > absVals[maxIndex]) maxIndex = 1;
+  if (absVals[2] > absVals[maxIndex]) maxIndex = 2;
+
+  return maxIndex;
 }
 
 //------------------------------------------------------------------------------
 //  permute: Permutes a vector
 //------------------------------------------------------------------------------
 
-Vec3 permute
+inline Vec3 permute
 
   ( Vec3   a  ,
     int    kx ,
@@ -226,12 +197,6 @@ Vec3 permute
     int    kz )
 
 {
-  Vec3 b;
-  const double vals[3] = {a.x, a.y, a.z};
-  
-  b.x = vals[kx];
-  b.y = vals[ky];
-  b.z = vals[kz];
-
-  return b;
+  const double* vals = &a.x;
+  return (Vec3){vals[kx], vals[ky], vals[kz]};
 }

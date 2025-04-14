@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mesh.h"
-#include "../util/mathutils.h"
 
 
 //------------------------------------------------------------------------------
@@ -36,7 +35,11 @@ void readVertexData
   fscanf( fin , "%d" , &nVer );
   
   mesh->vertices = (Vec3*)malloc(nVer * sizeof(Vec3));
+<<<<<<< Updated upstream
   mesh->VertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
+=======
+  mesh->vertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
+>>>>>>> Stashed changes
 
   for( iVer = 0 ; iVer < nVer ; iVer++ )
   {
@@ -325,6 +328,13 @@ bool calcTriangleIntersection
   float a = e0 / det;
   float b = e1 / det;
   float c = 1.0 - a - b;
+<<<<<<< Updated upstream
+=======
+
+  intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
+  intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
+  intersect->normal.z = a * Vn1.z + b * Vn2.z + c * Vn3.z;
+>>>>>>> Stashed changes
 
   intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
   intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
