@@ -59,6 +59,10 @@ void trace(Globdat* globdat)
   int numThreads = 16;
   omp_set_num_threads(numThreads);
 
+  Vec3 *offsets;
+  offsets = (Vec3*)malloc(SHADOW_SAMPLES * sizeof(Vec3));
+  createRandomOffsets(offsets);
+
   #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
@@ -107,7 +111,7 @@ void trace(Globdat* globdat)
        
         for (int iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
         {
-            totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection, iSpot);
+            totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection,offsets, iSpot);
             // printf("Calling spotlight %d\n", iSpot);
         }
 

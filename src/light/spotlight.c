@@ -56,3 +56,4 @@ int addLight(Spotlights* spotlights, Vec3 coord, double intensity)
     spotlights->count++;
     return spotlightID;
 }
+
