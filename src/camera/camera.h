@@ -29,10 +29,18 @@ typedef struct
   double     fov;
   int        samples_per_pixel;
   bool       strat;
+  double     aperture;
+  double     focal_length;
   double     u,v;
   double     y0,z0,dx;
 } CameraData;
 
+// void sampleDisk(double* dx, double* dy){
+//   double r = sqrt(((double)rand()) / RAND_MAX);
+//   double theta = 2.0 * PICONST * ((double)rand()) / RAND_MAX;
+//   *dx = r * cos(theta);
+//   *dy = r * sin(theta);
+// }
 
 //------------------------------------------------------------------------------
 //  readCameraData: Reads the camera data from a file

@@ -11,7 +11,7 @@ End
 
 Sun
   Direction -10.0 -5.5 5.0;
-  Intensity 1.0
+  Intensity 0.1
 End
 
 Materials

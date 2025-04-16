@@ -12,6 +12,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "camera.h"
 #include "../util/mathutils.h"
@@ -21,6 +22,8 @@ const char *ROTATION = "Rotation";
 const char *FOV    = "Fov";
 const char *SAMPLE = "Samples";
 const char *STRATIFIED = "Stratified";
+const char *APERTURE = "Aperture";
+const char *FOCAL_LENGTH = "Focallength";
 
 //------------------------------------------------------------------------------
 //  readCameraData: Reads the camera data from a file
@@ -60,6 +63,12 @@ void readCameraData
     {
       fscanf( fin , "%d" , &cam->strat );
       printf("DEBUG: Read stratified = %d\n", cam->strat);
+    }
+    else if (strcmp(label, APERTURE) == 0) {
+      fscanf(fin, "%le", &cam->aperture);
+    }
+    else if (strcmp(label, FOCAL_LENGTH) == 0) {
+        fscanf(fin, "%le", &cam->focal_length);
     }
 
     fscanf( fin , "%s" , label );
@@ -115,7 +124,16 @@ void generateRay
 
 // {for (int sample = 0; sample < cam->samples_per_pixel; sample ++)
   {
-  // double u_offset = rand()%1000 / 1000;
+  double lens_radius = 0.5 * cam->aperture;
+  double r1, r2;
+  do {
+    r1 = 2.0 * rand() / (double)RAND_MAX - 1.0;
+    r2 = 2.0 * rand() / (double)RAND_MAX - 1.0;
+  } while (r1 * r1 + r2 * r2 > 1.0);
+
+  double lens_x = lens_radius * r1;
+  double lens_y = lens_radius * r2;
+    // double u_offset = rand()%1000 / 1000;
   // double v_offset = rand()%1000 / 1000;
   
   double yaw    = cam->tilt.y * PICONST / 180;
@@ -154,21 +172,41 @@ void generateRay
   R[2][2] = cx * cy;
 
 
-  double dx = 1;
+  double dx = 1.0;
   double dy = cam->y0-(ix+u)*cam->dx;
   double dz = cam->z0+(iy-v)*cam->dx;
 
+  double dir_x = dx * cam->focal_length;
+  double dir_y = dy * cam->focal_length;
+  double dir_z = dz * cam->focal_length;
   // double x1 = dx;
   // double y1 = dy * cosPitch - dz *sinPitch;
   // double z1 = dy * sinPitch + dz * cosPitch;
 
-  ray->d.x = R[0][0]*dx + R[0][1]*dy + R[0][2]*dz;
-  ray->d.y = R[1][0]*dx + R[1][1]*dy + R[1][2]*dz;
-  ray->d.z = R[2][0]*dx + R[2][1]*dy + R[2][2]*dz;
+  // ray->d.x = R[0][0]*dx + R[0][1]*dy + R[0][2]*dz;
+  // ray->d.y = R[1][0]*dx + R[1][1]*dy + R[1][2]*dz;
+  // ray->d.z = R[2][0]*dx + R[2][1]*dy + R[2][2]*dz;
 
   // ray->d.x = dx*cosY -dz * sinY;
   // ray->d.y = dy*cosX -dz * sinX;
   // ray->d.z = dx * sinY * sinX + dz *cosY * cosX;
+// Rotate direction
+double dir_rot_x = R[0][0]*dir_x + R[0][1]*dir_y + R[0][2]*dir_z;
+double dir_rot_y = R[1][0]*dir_x + R[1][1]*dir_y + R[1][2]*dir_z;
+double dir_rot_z = R[2][0]*dir_x + R[2][1]*dir_y + R[2][2]*dir_z;
+
+// Offset by lens
+double offset_x = R[0][0]*lens_x + R[0][1]*lens_y;
+double offset_y = R[1][0]*lens_x + R[1][1]*lens_y;
+double offset_z = R[2][0]*lens_x + R[2][1]*lens_y;
+
+ray->o.x = cam->origin.x + offset_x;
+ray->o.y = cam->origin.y + offset_y;
+ray->o.z = cam->origin.z + offset_z;
+
+ray->d.x = dir_rot_x - offset_x;
+ray->d.y = dir_rot_y - offset_y;
+ray->d.z = dir_rot_z - offset_z;
 
   double length = sqrt(ray->d.x * ray->d.x + ray->d.y * ray->d.y + ray->d.z * ray->d.z);
   ray->d.x /= length;
