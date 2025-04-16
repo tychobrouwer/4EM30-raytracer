@@ -65,6 +65,20 @@ void trace
   int numThreads = 16;
   omp_set_num_threads(numThreads);
 
+  int spp = globdat->cam.samples_per_pixel;
+  bool strat = globdat->cam.strat;
+  int sqrt_spp = (int)sqrt((double)spp); // number of strata per dimension
+  
+  // Ensure spp is a perfect square
+  if (strat == 1 && sqrt_spp * sqrt_spp != spp) {
+      if (omp_get_thread_num() == 0) {
+          printf("Error: samples_per_pixel must be a perfect square for stratified sampling.\n");
+      }
+      exit(1);
+  }
+  
+
+  
   #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
   for ( ix = 0 ; ix < globdat->film->width ; ix++ )
   {
@@ -74,17 +88,80 @@ void trace
       col.green = 0;
       col.blue = 0;
       
-      for (int sample = 0; sample < globdat->cam.samples_per_pixel; sample++)
-      {
-      // Generate random u, v values between 0 and 1
-      // u = drand48();
-      // v = drand48();
-      
-      u = (rand() % 1000) / 1000.0;  // Random number between 0 and 1
-      v = (rand() % 1000) / 1000.0;  // Random number between 0 and 1
+    if (globdat->cam.strat ==1) {
+      for (int sx = 0; sx < sqrt_spp; sx++) {
+        for (int sy = 0; sy < sqrt_spp; sy++) {
+            // Jittered sample within each stratum
+            double jitter_x = ((double)rand()) / ((double)RAND_MAX);
+            double jitter_y = ((double)rand()) / ((double)RAND_MAX);
+    
+            u = ((double)sx + jitter_x) / (double)sqrt_spp;
+            v = ((double)sy + jitter_y) / (double)sqrt_spp;
+    
+            generateRay(&ray, ix, iy, u, v, &globdat->cam);
 
-      generateRay( &ray , ix , iy , u, v, &globdat->cam );
+            resetIntersect( &intersection );
+    
+            traverseBVH(bvh, globdat, &ray, &intersection);
+                  
+            if ( intersection.matID == -1 )
+            {
+              if ( globdat->bgimage.loadedFlag == 1 )
+              {
+                int jx, jy;
       
+                mapRayToBGCoordinates(&jx, &jy, ray, globdat);
+                    
+                Color bgCol = getBGImagePixelValue( &globdat->bgimage , jx , jy );
+                col.red += bgCol.red;
+                col.green += bgCol.green;
+                col.blue += bgCol.blue;
+              }
+              else
+              {
+                col.red += bgcol.red;
+                col.green += bgcol.green;
+                col.blue += bgcol.blue;
+              }
+            }
+            else      
+            {
+              Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
+                  
+              Ray shadowRay;
+              createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
+            
+              Intersect shadowHit;
+              resetIntersect(&shadowHit);
+            
+              traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
+            
+              bool inShadow = (shadowHit.matID != -1);
+            
+              double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal )*globdat->cam.samples_per_pixel;
+              if (inShadow) {
+                lightIntensity = 0.0;
+              }
+              col = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
+              col.red += col.red;
+              col.green += col.green;
+              col.blue += col.blue;
+      
+            }
+          }
+            col.red /= globdat->cam.samples_per_pixel;
+            col.green /= globdat->cam.samples_per_pixel;
+            col.blue /= globdat->cam.samples_per_pixel;
+      
+            storePixelRGB( globdat->film , ix , iy , &col );
+          }
+    }
+  else {
+    for (int sample = 0; sample < spp; sample++)
+      u =  (rand() % 1000) / 1000.0;  
+      v =  (rand() % 1000) / 1000.0;  // Random number between 0 and 1
+      generateRay(&ray, ix, iy, u, v, &globdat->cam);
+     
       resetIntersect( &intersection );
       
       traverseBVH(bvh, globdat, &ray, &intersection);
@@ -96,22 +173,6 @@ void trace
           int jx, jy;
 
           mapRayToBGCoordinates(&jx, &jy, ray, globdat);
-          col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
-          double x = ray.d.x;
-          double y = ray.d.y;
-          double z = ray.d.z;
-         
-          int jx,jy;
-                
-          double theta = acos(z / ( sqrt(x*x + y*y + z*z)));
-        
-          double phi   = atan2(y, x);
-                
-          int ny = globdat->bgimage.height;
-          int nx = globdat->bgimage.width;        
-        
-          jy = (int)ny*(theta)/3.14;
-          jx = (int)nx*(3.14-phi)/6.28;
               
           Color bgCol = getBGImagePixelValue( &globdat->bgimage , jx , jy );
           col.red += bgCol.red;
@@ -120,7 +181,9 @@ void trace
         }
         else
         {
-          col = bgcol;
+          col.red += bgcol.red;
+          col.green += bgcol.green;
+          col.blue += bgcol.blue;
         }
       }
       else      
@@ -137,27 +200,24 @@ void trace
       
         bool inShadow = (shadowHit.matID != -1);
       
-        double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal );
+        double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal )*spp;
         if (inShadow) {
           lightIntensity = 0.0;
         }
-
         col = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
-      }
+        col.red += col.red;
+        col.green += col.green;
+        col.blue += col.blue;
 
-        Color getCol = getColor( intensity , &globdat->materials.mat[intersection.matID] );
-        col.red += getCol.red;
-        col.green += getCol.green;
-        col.blue += getCol.blue;
+        }
+          col.red /= globdat->cam.samples_per_pixel;
+          col.green /= globdat->cam.samples_per_pixel;
+          col.blue /= globdat->cam.samples_per_pixel;
 
-      }
-    }
-      col.red /= globdat->cam.samples_per_pixel;
-      col.green /= globdat->cam.samples_per_pixel;
-      col.blue /= globdat->cam.samples_per_pixel;
+          storePixelRGB( globdat->film , ix , iy , &col );
+        }
 
-      storePixelRGB( globdat->film , ix , iy , &col );
-    }
+  }
   }
 
   free(bvh);
