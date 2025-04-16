@@ -103,7 +103,7 @@ void trace
             resetIntersect( &intersection );
     
             traverseBVH(bvh, globdat, &ray, &intersection);
-                  
+            // printf("intersection matId = %f \n", intersection.matID);      
             if ( intersection.matID == -1 )
             {
               if ( globdat->bgimage.loadedFlag == 1 )
@@ -119,9 +119,9 @@ void trace
               }
               else
               {
-                col.red += bgcol.red;
-                col.green += bgcol.green;
-                col.blue += bgcol.blue;
+                col.red = bgcol.red*spp;
+                col.green = bgcol.green*spp;
+                col.blue = bgcol.blue*spp;
               }
             }
             else      
@@ -138,7 +138,7 @@ void trace
             
               bool inShadow = (shadowHit.matID != -1);
             
-              double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal )*globdat->cam.samples_per_pixel;
+              double lightIntensity = dotProduct( &globdat->sun.d , &intersection.normal )*spp;
               if (inShadow) {
                 lightIntensity = 0.0;
               }
@@ -149,9 +149,9 @@ void trace
       
             }
           }
-            col.red /= globdat->cam.samples_per_pixel;
-            col.green /= globdat->cam.samples_per_pixel;
-            col.blue /= globdat->cam.samples_per_pixel;
+            col.red /= spp;
+            col.green /= spp;
+            col.blue /= spp;
       
             storePixelRGB( globdat->film , ix , iy , &col );
           }
@@ -181,9 +181,9 @@ void trace
         }
         else
         {
-          col.red += bgcol.red;
-          col.green += bgcol.green;
-          col.blue += bgcol.blue;
+          col.red += bgcol.red * spp;
+          col.green += bgcol.green * spp;
+          col.blue += bgcol.blue * spp;
         }
       }
       else      
@@ -210,9 +210,11 @@ void trace
         col.blue += col.blue;
 
         }
-          col.red /= globdat->cam.samples_per_pixel;
-          col.green /= globdat->cam.samples_per_pixel;
-          col.blue /= globdat->cam.samples_per_pixel;
+          col.red /= spp;
+          col.green /= spp;
+          col.blue /= spp;
+
+          // printf("Averaged Color: col.red = %f, col.green = %f, col.blue = %f\n", col.red, col.green, col.blue);
 
           storePixelRGB( globdat->film , ix , iy , &col );
         }
