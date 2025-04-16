@@ -125,30 +125,6 @@ Vec3 addVector
   return c;
 }
 
-
-//------------------------------------------------------------------------------
-//  subtractVector: Subtracts two vectors, each multiplied by a factor
-//------------------------------------------------------------------------------
-
-
-Vec3 subtractVector
-
-  ( double  fa ,
-    Vec3*   a  ,
-    double  fb ,
-    Vec3*   b  )
-
-{
-  Vec3 c;
-
-  c.x = a->x - b->x;
-  c.y = a->y - b->y;
-  c.z = a->z - b->z;
-
-  return c;
-}
-
-
 //------------------------------------------------------------------------------
 //  minVector: Returns the minimum of two vectors, each multiplied by a factor
 //------------------------------------------------------------------------------
@@ -218,7 +194,7 @@ int maxDimension
 //  permute: Permutes a vector
 //------------------------------------------------------------------------------
 
-Vec3 permute
+inline Vec3 permute
 
   ( Vec3   a  ,
     int    kx ,
@@ -226,12 +202,6 @@ Vec3 permute
     int    kz )
 
 {
-  Vec3 b;
-  const double vals[3] = {a.x, a.y, a.z};
-  
-  b.x = vals[kx];
-  b.y = vals[ky];
-  b.z = vals[kz];
-
-  return b;
+  const double* vals = &a.x;
+  return (Vec3){vals[kx], vals[ky], vals[kz]};
 }

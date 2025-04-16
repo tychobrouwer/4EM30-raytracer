@@ -55,7 +55,7 @@ typedef struct
 {
   Vec3       *vertices;
   FaceData   *faces;
-  Vec3       *VertexNormal;
+  Vec3       *vertexNormal;
   
   int        vertexCount;
   int        faceCount;

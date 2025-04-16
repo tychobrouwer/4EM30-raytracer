@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mesh.h"
-#include "../util/mathutils.h"
 
 
 //------------------------------------------------------------------------------
@@ -36,7 +35,7 @@ void readVertexData
   fscanf( fin , "%d" , &nVer );
   
   mesh->vertices = (Vec3*)malloc(nVer * sizeof(Vec3));
-  mesh->VertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
+  mesh->vertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
 
   for( iVer = 0 ; iVer < nVer ; iVer++ )
   {
@@ -218,6 +217,7 @@ bool calcFaceIntersection
 }
 
 
+
 //-----------------------------------------------------------------------------
 // calcTriangleIntersection: Calculates the intersection of a ray with a
 //                           triangle defined by a face
@@ -310,15 +310,15 @@ bool calcTriangleIntersection
 
   if (tlabel)
   {
-    Vn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
-    Vn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[3]];
+    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[3]];
   }
   else if(!tlabel)
   {
-    Vn1 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vn2 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[1]];
-    Vn3 = mesh->VertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[1]];
+    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
   }
   fflush(stdout);
 
@@ -334,6 +334,8 @@ bool calcTriangleIntersection
 
   return true;
 }
+
+   
 
 //------------------------------------------------------------------------------
 //  freeMesh: Frees the memory of the mesh
