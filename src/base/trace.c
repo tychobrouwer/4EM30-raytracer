@@ -33,9 +33,7 @@
 //------------------------------------------------------------------------------
 
 
-void trace
-
-  ( Globdat*  globdat )
+void trace(Globdat* globdat)
 
 {
   printf("\n  +++ Start tracing +++\n");
@@ -52,8 +50,7 @@ void trace
 
   Intersect intersection;
 
-  BVH *bvh;
-  bvh = (BVH*)malloc(sizeof(BVH));
+  BVH *bvh = (BVH*)malloc(sizeof(BVH));
   bvh->nodeCount = 0;
 
   int total = globdat->mesh.faceCount + globdat->spheres.count;
@@ -68,9 +65,7 @@ void trace
     for ( iy = 0 ; iy < globdat->film->height ; iy++ )
     {
       generateRay( &ray , ix , iy , &globdat->cam );
-      
       resetIntersect( &intersection );
-      
       traverseBVH(bvh, globdat, &ray, &intersection);
            
       if ( intersection.matID == -1 )
@@ -78,7 +73,6 @@ void trace
         if ( globdat->bgimage.loadedFlag == 1 )
         {
           int jx, jy;
-
           mapRayToBGCoordinates(&jx, &jy, ray, globdat);
           col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
         }
@@ -90,56 +84,46 @@ void trace
       else      
       {
         Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
-            
+        double totalLight = 0.0;
+
+        //SUNLIGHT
+
         Intersect shadowHit;
         resetIntersect(&shadowHit);
 
         Ray shadowRay;
         createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
         traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
-        
 
-        double totalLight = 0.0;
+
+
         if (shadowHit.matID ==-1)
           {
-            totalLight += dotProduct( &globdat->sun.d, &intersection.normal);
-
-
+            totalLight += fmax(dotProduct(&globdat->sun.d, &intersection.normal), 0.0);
           }
 
-        // int inShadow = (shadowHit.matID != -1);
-        // double totalLight = dotProduct( &globdat->sun.d , &intersection.normal );
 
-        int iSpot;
-        for (iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
+        // --SPOTLIGHTS--
+       
+        for (int iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
         {
-          Vec3 spotlightDirection = subtractVector(1.0, &globdat->spotlights.spotlight[iSpot].coord, 1.0, &hitPoint);
-
-          unit(&spotlightDirection);  // Now spotlightDirection has length = 1
-          spotlightDirection = multiplyVector( globdat->spotlights.spotlight[iSpot].intensity, &spotlightDirection);
-          
-
-          resetIntersect(&shadowHit);
-          createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &spotlightDirection, &intersection.normal);
-          traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
-
-          // inShadow = inShadow && (shadowHit.matID !=-1);
-          
-          if (shadowHit.matID ==-1)
-          {
-            totalLight += dotProduct( &spotlightDirection, &intersection.normal);
-
-
-          }
+            totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection, iSpot);
+            // printf("Calling spotlight %d\n", iSpot);
         }
-        
-        double lightIntensity = totalLight / (1+globdat->spotlights.count);
-        
-        // if (inShadow) {
-        //   lightIntensity = 0.0;
-        // }
 
-        col = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
+        
+        // Final lighting and color
+        double ambient = 0.05;
+        double finalLight = fmin(ambient + totalLight, 1.0);
+        Color baseColor = getColor(1.0, &globdat->materials.mat[intersection.matID]);
+        col.red   = (int)(baseColor.red   * finalLight);
+        col.green = (int)(baseColor.green * finalLight);
+        col.blue  = (int)(baseColor.blue  * finalLight);
+        // Optional: clamp
+        col.red   = fmin(col.red, 255);
+        col.green = fmin(col.green, 255);
+        col.blue  = fmin(col.blue, 255);
+        
       }
 
       storePixelRGB( globdat->film , ix , iy , &col );

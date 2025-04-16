@@ -14,49 +14,45 @@
 #include <string.h>
 #include <stdlib.h>
 #include "spotlight.h"
+#define PI 3.14159265358979323846
 
 
 //------------------------------------------------------------------------------
 //  readspotlightData: Reads the spotlight data from a file
 //------------------------------------------------------------------------------
 
-void readSpotlightData
-
-    (FILE *fin,
-     Spotlights *spotlights)
+void readSpotlightData(FILE *fin, Spotlights *spotlights)
 
 {
   int nLight = 0;
   Vec3 coord;
-  double intensity;
-  int iLight;
+  double intensity, cutoff, falloffSharpness;
 
   fscanf(fin, "%d", &nLight);
+
   spotlights->spotlight = (Spotlight*)malloc(nLight * sizeof(Spotlight));
+  spotlights->count = 0;
 
-  for (iLight = 0; iLight < nLight; iLight++)
+  for (int iLight = 0; iLight < nLight; iLight++)
   {
-    fscanf(fin, "%le %le %le %le", &coord.x,
-           &coord.y, &coord.z,
-           &intensity);
+    fscanf(fin, "%le %le %le %le", &coord.x, &coord.y, &coord.z, &intensity);
+    fscanf(fin, "%le %le", &cutoff, &falloffSharpness);
+    cutoff = cutoff * (PI / 180.0);  // convert degrees → radians
 
-    addLight(spotlights, coord, intensity);
+    int id = addLight(spotlights, coord, intensity);
+    spotlights->spotlight[id].cutoff = cutoff;
+    spotlights->spotlight[id].falloffSharpness = falloffSharpness;
   }
 
-  printf("    Number of spotlights .... : %d\n", spotlights->count);
 }
 
-int addLight(Spotlights *spotlights, Vec3 coord, double intensity)
+int addLight(Spotlights* spotlights, Vec3 coord, double intensity)
 {
+    int spotlightID = spotlights->count;
 
-  int spotlightID = spotlights->count;
+    spotlights->spotlight[spotlightID].coord = coord;
+    spotlights->spotlight[spotlightID].intensity = intensity;
 
-  spotlights->spotlight[spotlightID].coord.x = coord.x;
-  spotlights->spotlight[spotlightID].coord.y = coord.y;
-  spotlights->spotlight[spotlightID].coord.z = coord.z;
-  spotlights->spotlight[spotlightID].intensity = intensity;
-
-  spotlights->count++;
-
-  return spotlightID;
+    spotlights->count++;
+    return spotlightID;
 }

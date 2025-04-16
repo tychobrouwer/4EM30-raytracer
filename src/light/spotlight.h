@@ -25,16 +25,20 @@
  
  typedef struct 
  {
-   Vec3       coord;
-   double     intensity;
+   Vec3 coord;
+   double cutoff;
+   double falloffSharpness;
+   double intensity;
  } Spotlight;
+
 
 
  typedef struct 
  {
-    Spotlight *spotlight;
-    int count;
- }  Spotlights;
+     Spotlight *spotlight;
+     int count;
+ } Spotlights;
+
  
  
  //------------------------------------------------------------------------------
@@ -47,14 +51,11 @@
  //------------------------------------------------------------------------------
  
  
- void readSpotlightData
- 
-   ( FILE*      fin ,
-    Spotlights*       spotlights );
- 
-int addLight(Spotlights* spotlights, Vec3 coord, double intensity);
+ void readSpotlightData( FILE* fin, Spotlights *spotlights );
+ int addLight(Spotlights* spotlights, Vec3 coord, double intensity);
 
- #endif
+  #endif
+
 
 
  
