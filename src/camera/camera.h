@@ -28,6 +28,7 @@ typedef struct
   Vec3       origin,tilt;
   double     fov;
   int        samples_per_pixel;
+  bool       strat;
   double     u,v;
   double     y0,z0,dx;
 } CameraData;

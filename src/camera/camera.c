@@ -20,6 +20,7 @@ const char *LOCATION = "Centre";
 const char *ROTATION = "Rotation";
 const char *FOV    = "Fov";
 const char *SAMPLE = "Samples";
+const char *STRATIFIED = "Stratified";
 
 //------------------------------------------------------------------------------
 //  readCameraData: Reads the camera data from a file
@@ -54,6 +55,11 @@ void readCameraData
     {
       fscanf( fin , "%d" , &cam->samples_per_pixel );
       printf("DEBUG: Read samples_per_pixel = %d\n", cam->samples_per_pixel);
+    }
+    else if ( strcmp( label , STRATIFIED ) == 0 )
+    {
+      fscanf( fin , "%d" , &cam->strat );
+      printf("DEBUG: Read stratified = %d\n", cam->strat);
     }
 
     fscanf( fin , "%s" , label );
@@ -148,9 +154,9 @@ void generateRay
   R[2][2] = cx * cy;
 
 
-  double dx = 1.0;
-  double dy = cam->y0-(ix+u-0.5)*cam->dx;
-  double dz = cam->z0+(iy-v-0.5)*cam->dx;
+  double dx = 1;
+  double dy = cam->y0-(ix+u)*cam->dx;
+  double dz = cam->z0+(iy-v)*cam->dx;
 
   // double x1 = dx;
   // double y1 = dy * cosPitch - dz *sinPitch;
