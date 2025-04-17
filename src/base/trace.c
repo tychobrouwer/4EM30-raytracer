@@ -55,8 +55,7 @@ void trace
 
   Intersect intersection;
 
-  BVH *bvh;
-  bvh = (BVH*)malloc(sizeof(BVH));
+  BVH *bvh = (BVH*)malloc(sizeof(BVH));
   bvh->nodeCount = 0;
 
   int total = globdat->mesh.faceCount + globdat->spheres.count;

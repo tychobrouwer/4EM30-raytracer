@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "mesh.h"
-#include "../util/mathutils.h"
 
 
 //------------------------------------------------------------------------------
@@ -36,6 +35,7 @@ void readVertexData
   fscanf( fin , "%d" , &nVer );
   
   mesh->vertices = (Vec3*)malloc(nVer * sizeof(Vec3));
+  mesh->vertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
 
   for( iVer = 0 ; iVer < nVer ; iVer++ )
   {
@@ -172,15 +172,20 @@ bool calcFaceIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
-    Face*         face      )
+    Face*         face      ,
+    Mesh*         mesh      ,
+    int           iShp      )
 
 {
+  bool tlabel;
   if ( face->vertexCount == 3 )
   {
-    return calcTriangleIntersection( intersect , ray , face );
+    tlabel = false;
+    return calcTriangleIntersection( intersect , ray , face, mesh, iShp, tlabel);
   }
   else
   {
+    tlabel = false;
     Face triaFace;
     bool flag;
 
@@ -191,7 +196,7 @@ bool calcFaceIntersection
     triaFace.vertices[1]  = face->vertices[1];
     triaFace.vertices[2]  = face->vertices[2];
 
-    flag = calcTriangleIntersection( intersect , ray , &triaFace );
+    flag = calcTriangleIntersection( intersect , ray , &triaFace, mesh, iShp, tlabel);
 
     if (flag)
     {
@@ -199,16 +204,18 @@ bool calcFaceIntersection
     }
     else
     {
+      tlabel = true;
       triaFace.vertices[0]  = face->vertices[0];
       triaFace.vertices[1]  = face->vertices[2];
       triaFace.vertices[2]  = face->vertices[3];
       
-      return calcTriangleIntersection( intersect , ray , &triaFace );
+      return calcTriangleIntersection( intersect , ray , &triaFace, mesh, iShp, tlabel);
     }
   }
 
   return false;
 }
+
 
 
 //-----------------------------------------------------------------------------
@@ -221,7 +228,10 @@ bool calcTriangleIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
-    Face*         face      )
+    Face*         face      ,
+    Mesh*         mesh      ,
+    int           iShp      ,
+    bool          tlabel    )
 
 {
   Vec3 p0t,p1t,p2t,d;
@@ -296,17 +306,35 @@ bool calcTriangleIntersection
 
   intersect->matID = face->matID;
 
-  Vec3 a,b,c;
+  Vec3 Vn1, Vn2, Vn3;
 
-  a = addVector( 1.0 , &face->vertices[1] , -1.0 , &face->vertices[0] );
-  b = addVector( 1.0 , &face->vertices[2] , -1.0 , &face->vertices[0] );
+  if (tlabel)
+  {
+    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
+    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[3]];
+  }
+  else if(!tlabel)
+  {
+    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
+    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[1]];
+    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
+  }
+  fflush(stdout);
 
-  crossProduct( &intersect->normal , &a , &b );
+  float a = e0 / det;
+  float b = e1 / det;
+  float c = 1.0 - a - b;
 
-  unit( &intersect->normal );
+  intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
+  intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
+  intersect->normal.z = a * Vn1.z + b * Vn2.z + c * Vn3.z;
+
+  unit(&intersect->normal);
 
   return true;
 }
+
    
 
 //------------------------------------------------------------------------------

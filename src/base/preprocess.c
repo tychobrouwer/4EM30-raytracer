@@ -24,5 +24,49 @@ void preprocess
 
 {
   initialiseCamera( &globdat->cam , globdat->film );
+  calcVertexNormal( &globdat ->mesh );
 }
 
+
+//-------------------------------------------------------------
+// calcvertexNormal
+//-------------------------------------------------------------
+
+void calcVertexNormal( Mesh* mesh )
+{
+  int vertexID;
+
+  for (int i = 0; i < mesh->vertexCount; i++)
+  {
+    mesh->vertexNormal[i].x = 0;
+    mesh->vertexNormal[i].y = 0;
+    mesh->vertexNormal[i].z = 0;
+  }
+
+  for (int i = 0; i < mesh->faceCount; i++)
+  {
+    int* vertexIDs = mesh->faces[i].vertexIDs;
+
+    Vec3 v1 = mesh->vertices[vertexIDs[0]];
+    Vec3 v2 = mesh->vertices[vertexIDs[1]];
+    Vec3 v3 = mesh->vertices[vertexIDs[2]];
+
+    Vec3 a = addVector(1.0, &v2, -1.0, &v1);
+    Vec3 b = addVector(1.0, &v3, -1.0, &v1);
+
+    Vec3 faceNormal;
+    crossProduct(&faceNormal, &a, &b);
+    unit(&faceNormal);
+
+    for (int j = 0; j < mesh->faces[i].vertexCount; j++)
+    {
+      vertexID = vertexIDs[j];
+      mesh->vertexNormal[vertexID] = addVector(1.0, &mesh->vertexNormal[vertexID], 1.0, &faceNormal);
+    }
+  }
+
+  for (int i = 0; i < mesh->vertexCount; i++)
+  {
+    unit(&mesh->vertexNormal[i]);
+  }
+}

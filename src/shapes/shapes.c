@@ -37,6 +37,6 @@ void calcIntersection
   {
     getFace( &face , iShp , &globdat->mesh );
 
-    calcFaceIntersection( intersect , ray , &face );
+    calcFaceIntersection( intersect , ray , &face , &globdat->mesh, iShp  );
   }
 }

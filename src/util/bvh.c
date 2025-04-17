@@ -35,7 +35,7 @@ AABB computeSphereAABB(Sphere *sphere)
   Vec3 radiusVec = {sphere->radius, sphere->radius, sphere->radius};
 
   AABB bbox;
-  bbox.min = subtractVector(1.0, &sphere->centre, 1.0, &radiusVec);
+  bbox.min = addVector(1.0, &sphere->centre, -1.0, &radiusVec);
   bbox.max = addVector(1.0, &sphere->centre, 1.0, &radiusVec);
   return bbox;
 }
@@ -149,7 +149,7 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
     return nodeIndex;
   }
 
-  Vec3 size = subtractVector(1.0, &node->bbox.max, 1.0, &node->bbox.min);
+  Vec3 size = addVector(1.0, &node->bbox.max, -1.0, &node->bbox.min);
   if (size.x > size.y && size.x > size.z)
   {
     splitAxis = 0; // X-axis
@@ -182,7 +182,7 @@ int buildBVH(BVH *bvh, Globdat *globdat, int first, int count)
 //  intersectAABB: Intersects a ray with an AABB
 //------------------------------------------------------------------------------
 
-int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3], double maxDist)
+int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3], double tMax)
 {
   double tmin = ((dirIsNeg[0] ? aabb->max.x : aabb->min.x) - ray->o.x) * invDir->x;
   double tmax = ((dirIsNeg[0] ? aabb->min.x : aabb->max.x) - ray->o.x) * invDir->x;
@@ -190,7 +190,7 @@ int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3
   double tymin = ((dirIsNeg[1] ? aabb->max.y : aabb->min.y) - ray->o.y) * invDir->y;
   double tymax = ((dirIsNeg[1] ? aabb->min.y : aabb->max.y) - ray->o.y) * invDir->y;
   
-  if (tmin > tymax || tymin > tmax || tmin > maxDist) return 0;
+  if (tmin > tymax || tymin > tmax || tmin > tMax) return 0;
   
   if (tymin > tmin) tmin = tymin;
   if (tymax < tmax) tmax = tymax;
@@ -198,10 +198,11 @@ int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3
   double tzmin = ((dirIsNeg[2] ? aabb->max.z : aabb->min.z) - ray->o.z) * invDir->z;
   double tzmax = ((dirIsNeg[2] ? aabb->min.z : aabb->max.z) - ray->o.z) * invDir->z;
   
-  if (tmin > tzmax || tzmin > tmax || tzmin > maxDist) return 0;
+  if (tmin > tzmax || tzmin > tmax || tzmin > tMax) return 0;
   
   return 1;
 }
+
 
 //------------------------------------------------------------------------------
 //  traverseBVH: Traverses the BVH tree
@@ -209,40 +210,42 @@ int intersectAABB(Ray *ray, AABB *aabb, const Vec3 *invDir, const int dirIsNeg[3
 
 void traverseBVH(BVH *bvh, Globdat *globdat, Ray *ray, Intersect *intersect)
 {
-  int nodeStack[1028];
+  int nodeStack[64];
   int stackPtr = 0;
   int nodeIndex = 0;
 
   const Vec3 invDir = {1.0 / ray->d.x, 1.0 / ray->d.y, 1.0 / ray->d.z};
   const int dirIsNeg[3] = {invDir.x < 0, invDir.y < 0, invDir.z < 0};
 
-  double maxDist = (intersect->t < DBL_MAX) ? intersect->t : DBL_MAX;
+  double tMax = intersect->t;
 
   while (true)
   {
     BVHNode *node = &bvh->nodes[nodeIndex];
 
-    if (intersectAABB(ray, &node->bbox, &invDir, dirIsNeg, maxDist))
+    if (intersectAABB(ray, &node->bbox, &invDir, dirIsNeg, tMax))
     {
       if (node->isLeaf)
       {
-        for (int i = node->firstObject; i < node->firstObject + node->objectCount; i++)
+        for (int i = 0; i < node->objectCount; i++)
         {
-          if (intersect->t < maxDist) {
-            maxDist = intersect->t;
-          }
+          int objIndex = node->firstObject + i;
 
-          if (i < globdat->mesh.faceCount)
+          if (objIndex < globdat->mesh.faceCount)
           {
             Face face;
-            getFace(&face, i, &globdat->mesh);
-            calcFaceIntersection(intersect, ray, &face);
+            getFace(&face, objIndex, &globdat->mesh);
+            calcFaceIntersection(intersect, ray, &face, &globdat->mesh, objIndex);
           }
           else
           {
-            int iSphere = i - globdat->mesh.faceCount;
+            int iSphere = objIndex - globdat->mesh.faceCount;
             calcSphereIntersection(intersect, ray, &globdat->spheres.sphere[iSphere]);
           }
+        }
+
+        if (intersect->t < tMax) {
+          tMax = intersect->t;
         }
 
         if (stackPtr == 0)
