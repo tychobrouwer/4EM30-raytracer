@@ -7,7 +7,7 @@
  *
  *  Versions:
  *  03/02/2020 | J.Remmers    | First version
- *             |              |
+ *  17/04/2025 | H.B.G. de Bruijn | updated code for assignment
  *----------------------------------------------------------------------------*/
 
 #ifndef CAMERA_CAMERA_H
@@ -34,13 +34,6 @@ typedef struct
   double     u,v;
   double     y0,z0,dx;
 } CameraData;
-
-// void sampleDisk(double* dx, double* dy){
-//   double r = sqrt(((double)rand()) / RAND_MAX);
-//   double theta = 2.0 * PICONST * ((double)rand()) / RAND_MAX;
-//   *dx = r * cos(theta);
-//   *dy = r * sin(theta);
-// }
 
 //------------------------------------------------------------------------------
 //  readCameraData: Reads the camera data from a file

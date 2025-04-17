@@ -8,6 +8,7 @@
  *  Versions:
  *  03/02/2020 | J.Remmers    | First version
  *  04/01/2022 | J.Remmers    | Fixed bug that caused mirroring of image
+ *  17/04/2025 | H.B.G. de Bruijn | updated code for assignment
  *
  *----------------------------------------------------------------------------*/
 

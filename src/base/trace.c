@@ -9,7 +9,7 @@
  *  03/02/2020 | J.Remmers    | First version
  *  04/01/2022 | J.Remmers    | Added different materials / colors (hardcoded)
  *  12/02/2023 | J.Remmers    | Added library structure for materials
- *
+ *  17/04/2025 | H.B.G. de Bruijn | updated code for assignment
  *----------------------------------------------------------------------------*/
 
 #include <stdlib.h>
@@ -91,7 +91,7 @@ void trace
     if (globdat->cam.strat ==1) {
       for (int sx = 0; sx < sqrt_spp; sx++) {
         for (int sy = 0; sy < sqrt_spp; sy++) {
-            // Jittered sample within each stratum
+            // setting the grid for each sample
             double jitter_x = ((double)rand()) / ((double)RAND_MAX);
             double jitter_y = ((double)rand()) / ((double)RAND_MAX);
     
@@ -103,7 +103,7 @@ void trace
             resetIntersect( &intersection );
     
             traverseBVH(bvh, globdat, &ray, &intersection);
-            // printf("intersection matId = %f \n", intersection.matID);      
+
             if ( intersection.matID == -1 )
             {
               if ( globdat->bgimage.loadedFlag == 1 )
@@ -111,7 +111,7 @@ void trace
                 int jx, jy;
       
                 mapRayToBGCoordinates(&jx, &jy, ray, globdat);
-                    
+                // adds the color for every cycle
                 Color bgCol = getBGImagePixelValue( &globdat->bgimage , jx , jy );
                 col.red += bgCol.red;
                 col.green += bgCol.green;
@@ -149,6 +149,7 @@ void trace
       
             }
           }
+          //divides the color by the number of samples per pixel, to get the real color.
             col.red /= spp;
             col.green /= spp;
             col.blue /= spp;
@@ -158,8 +159,9 @@ void trace
     }
   else {
     for (int sample = 0; sample < spp; sample++)
+    // calculate two random number to set the offset for random sampling
       u =  (rand() % 1000) / 1000.0;  
-      v =  (rand() % 1000) / 1000.0;  // Random number between 0 and 1
+      v =  (rand() % 1000) / 1000.0;  
       generateRay(&ray, ix, iy, u, v, &globdat->cam);
      
       resetIntersect( &intersection );
@@ -213,8 +215,6 @@ void trace
           col.red /= spp;
           col.green /= spp;
           col.blue /= spp;
-
-          // printf("Averaged Color: col.red = %f, col.green = %f, col.blue = %f\n", col.red, col.green, col.blue);
 
           storePixelRGB( globdat->film , ix , iy , &col );
         }
