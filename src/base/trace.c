@@ -20,7 +20,7 @@
 #include "../util/ray.h"
 #include "../util/film.h"
 #include "../util/bvh.h"
-#include "../light/shadow.h"    // shadow implementation
+#include "../light/shadow.h" // shadow implementation
 
 #include <omp.h>
 #include <string.h>
@@ -32,65 +32,64 @@
 //  trace: Traces the rays through the scene
 //------------------------------------------------------------------------------
 
-
-void trace(Globdat* globdat)
+void trace(Globdat *globdat)
 
 {
   printf("\n  +++ Start tracing +++\n");
-  
-  int ix,iy;
 
-  Ray   ray;
+  int ix, iy;
+
+  Ray ray;
   Color col;
 
   Color bgcol;
-  bgcol.red   = (int)255*0.678;
-  bgcol.green = (int)255*0.847;
-  bgcol.blue  = (int)255*0.902;
+  bgcol.red = (int)255 * 0.678;
+  bgcol.green = (int)255 * 0.847;
+  bgcol.blue = (int)255 * 0.902;
 
   Intersect intersection;
 
-  BVH *bvh = (BVH*)malloc(sizeof(BVH));
+  BVH *bvh = (BVH *)malloc(sizeof(BVH));
   bvh->nodeCount = 0;
 
   int total = globdat->mesh.faceCount + globdat->spheres.count;
   buildBVH(bvh, globdat, 0, total);
 
-  int numThreads = 12;
+  int numThreads = 16;
   omp_set_num_threads(numThreads);
 
   Vec3 *offsets;
-  offsets = (Vec3*)malloc(SHADOW_SAMPLES * sizeof(Vec3));
+  offsets = (Vec3 *)malloc(SHADOW_SAMPLES * sizeof(Vec3));
   createRandomOffsets(offsets);
 
-  #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
-  for ( ix = 0 ; ix < globdat->film->width ; ix++ )
+#pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
+  for (ix = 0; ix < globdat->film->width; ix++)
   {
-    for ( iy = 0 ; iy < globdat->film->height ; iy++ )
+    for (iy = 0; iy < globdat->film->height; iy++)
     {
-      generateRay( &ray , ix , iy , &globdat->cam );
-      resetIntersect( &intersection );
+      generateRay(&ray, ix, iy, &globdat->cam);
+      resetIntersect(&intersection);
       traverseBVH(bvh, globdat, &ray, &intersection);
-           
-      if ( intersection.matID == -1 )
+
+      if (intersection.matID == -1)
       {
-        if ( globdat->bgimage.loadedFlag == 1 )
+        if (globdat->bgimage.loadedFlag == 1)
         {
           int jx, jy;
           mapRayToBGCoordinates(&jx, &jy, ray, globdat);
-          col = getBGImagePixelValue( &globdat->bgimage , jx , jy );
+          col = getBGImagePixelValue(&globdat->bgimage, jx, jy);
         }
         else
         {
           col = bgcol;
         }
       }
-      else      
+      else
       {
         Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
         double totalLight = 0.0;
 
-        //SUNLIGHT
+        // SUNLIGHT
 
         Intersect shadowHit;
         resetIntersect(&shadowHit);
@@ -99,38 +98,34 @@ void trace(Globdat* globdat)
         createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
         traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
 
-
-
-        if (shadowHit.matID ==-1)
-          {
-            totalLight += fmax(dotProduct(&globdat->sun.d, &intersection.normal), 0.0);
-          }
-
-
-        // --SPOTLIGHTS--
-       
-        for (int iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
+        if (shadowHit.matID == -1)
         {
-            totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection,offsets, iSpot);
-            // printf("Calling spotlight %d\n", iSpot);
+          totalLight += fmax(dotProduct(&globdat->sun.d, &intersection.normal), 0.0);
         }
 
-        
+        // --SPOTLIGHTS--
+
+        for (int iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
+        {
+          totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection, offsets, iSpot);
+
+          // printf("Calling spotlight %d\n", iSpot);
+        }
+
         // Final lighting and color
         double ambient = 0.05;
         double finalLight = fmin(ambient + totalLight, 1.0);
         Color baseColor = getColor(1.0, &globdat->materials.mat[intersection.matID]);
-        col.red   = (int)(baseColor.red   * finalLight);
+        col.red = (int)(baseColor.red * finalLight);
         col.green = (int)(baseColor.green * finalLight);
-        col.blue  = (int)(baseColor.blue  * finalLight);
+        col.blue = (int)(baseColor.blue * finalLight);
         // Optional: clamp
-        col.red   = fmin(col.red, 255);
+        col.red = fmin(col.red, 255);
         col.green = fmin(col.green, 255);
-        col.blue  = fmin(col.blue, 255);
-        
+        col.blue = fmin(col.blue, 255);
       }
 
-      storePixelRGB( globdat->film , ix , iy , &col );
+      storePixelRGB(globdat->film, ix, iy, &col);
     }
   }
 
@@ -142,19 +137,19 @@ void trace(Globdat* globdat)
 //                         coordinates
 //------------------------------------------------------------------------------
 
-void mapRayToBGCoordinates(int* jx, int* jy, Ray ray, Globdat* globdat)
+void mapRayToBGCoordinates(int *jx, int *jy, Ray ray, Globdat *globdat)
 {
   double x = ray.d.x;
   double y = ray.d.y;
   double z = ray.d.z;
- 
-  double theta = acos(z / ( sqrt(x*x + y*y + z*z)));
 
-  double phi   = atan2(y, x);
+  double theta = acos(z / (sqrt(x * x + y * y + z * z)));
+
+  double phi = atan2(y, x);
 
   int ny = globdat->bgimage.height;
   int nx = globdat->bgimage.width;
 
   *jy = (int)(ny * (theta) / PI);
-  *jx = (int)(nx * (PI - phi) / (2*PI));
+  *jx = (int)(nx * (PI - phi) / (2 * PI));
 }

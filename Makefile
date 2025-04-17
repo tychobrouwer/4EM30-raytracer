@@ -17,8 +17,8 @@ endif
 
 obj = $(src:.c=.o)
 
-LDFLAGS = -lm -O3 -fopenmp -pg
-CFLAGS = -lm -O3 -fopenmp -pg
+LDFLAGS = -lm -O3 -fopenmp
+CFLAGS = -lm -O3 -fopenmp
 
 
 

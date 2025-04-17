@@ -3,16 +3,16 @@
 #include <stdlib.h>
 // #include "spotlight.h"
 
-
 double clamp(double x, double minVal, double maxVal)
 {
-    if (x < minVal) return minVal;
-    if (x > maxVal) return maxVal;
+    if (x < minVal)
+        return minVal;
+    if (x > maxVal)
+        return maxVal;
     return x;
 }
 
-
-void createShadowRay(Globdat* globdat, BVH* bvh, Ray *shadowRay, Vec3* point, Vec3* lightDir, Vec3* normal)
+void createShadowRay(Globdat *globdat, BVH *bvh, Ray *shadowRay, Vec3 *point, Vec3 *lightDir, Vec3 *normal)
 {
     Vec3 shadowDir = *lightDir;
     unit(&shadowDir);
@@ -24,7 +24,7 @@ void createShadowRay(Globdat* globdat, BVH* bvh, Ray *shadowRay, Vec3* point, Ve
     shadowRay->d = shadowDir;
 }
 
-void createRandomOffsets(Vec3* offsets)
+void createRandomOffsets(Vec3 *offsets)
 {
     for (int i = 0; i < SHADOW_SAMPLES; i++)
     {
@@ -35,67 +35,54 @@ void createRandomOffsets(Vec3* offsets)
 }
 
 double computeSoftShadow(
-    Vec3* hitPoint,
-    Vec3* normal,
-    Globdat* globdat,
-    BVH* bvh,
-    Intersect* intersection,
-    Vec3* offsets,
-    int lightIndex
-    
-
-)
+    Vec3 *hitPoint,
+    Vec3 *normal,
+    Globdat *globdat,
+    BVH *bvh,
+    Intersect *intersection,
+    Vec3 *offsets,
+    int lightIndex)
 {
-    Spotlight* spotlight = &globdat->spotlights.spotlight[lightIndex];
+   
 
-    Vec3 spotlightToHit = subtractVector(1.0, hitPoint, 1.0, &spotlight->coord);
-    unit(&spotlightToHit);
+    Spotlight *spotlight = &globdat->spotlights.spotlight[lightIndex];
 
-    Vec3 target = {0.0, 0.0, 0.0}; // or use actual spotlight direction if you support it
-    Vec3 spotlightDir = subtractVector(1.0, &target, 1.0, &spotlight->coord);
-    unit(&spotlightDir);
+    Vec3 hitToSpotlight = subtractVector(1.0, &spotlight->coord, 1.0, hitPoint);
+    unit(&hitToSpotlight);
 
-    double angleCos = dotProduct(&spotlightDir, &spotlightToHit);
+    double angleCos = dotProduct(&spotlight->dir, &hitToSpotlight);
 
-    if (spotlight->useCutoff && angleCos > spotlight->cosCutoff) {
+    if (angleCos < 0.0)
+        angleCos = -angleCos;
+
+    if (angleCos < spotlight->cosCutoff)
         return 0.0;
-    }
 
-    double falloff = 1.0;
-    if (spotlight->useFalloff) {
-        double theta = angleCos;
-        double epsilon = 0.1; // softness of the edge
-        falloff = clamp((theta - spotlight->cosCutoff) / epsilon, 0.0, 1.0);
-    }
-    
+    double falloff = clamp((angleCos - spotlight->cosCutoff) / spotlight->falloffSharpness, 0.0, 1.0);
+
     double sampleLight = 0.0;
-
     Ray shadowRay;
     Intersect shadowHit;
-  
+
     for (int s = 0; s < SHADOW_SAMPLES; s++)
-{
-    Vec3 jitteredLightPos = addVector(1.0, &spotlight->coord, 1.0, &offsets[s]);
-    Vec3 LightDir = subtractVector(1.0, &jitteredLightPos, 1.0, hitPoint);
-    unit(&LightDir);
-
-    resetIntersect(&shadowHit);
-
-    createShadowRay(globdat, bvh, &shadowRay, hitPoint, &LightDir, normal);
-    traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
-
-    if (shadowHit.matID == -1)
     {
-        double dot = fmax(dotProduct(&LightDir, normal), 0.0);
-        sampleLight += dot;
+        Vec3 jitteredLightPos = addVector(1.0, &spotlight->coord, 1.0, &offsets[s]);
+        Vec3 lightDir = subtractVector(1.0, &jitteredLightPos, 1.0, hitPoint);
+        unit(&lightDir);
+
+        resetIntersect(&shadowHit);
+
+        createShadowRay(globdat, bvh, &shadowRay, hitPoint, &lightDir, normal);
+        traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
+
+        if (shadowHit.matID == -1)
+        {
+            double dot = fmax(dotProduct(&lightDir, normal), 0.0);
+            sampleLight += dot;
+        }
     }
-}
 
     double result = (sampleLight / SHADOW_SAMPLES) * falloff * spotlight->intensity;
-    if (result > 0.01)
-        // printf("Spotlight %d hits with %.4f light\n", lightIndex, result);
 
     return result;
-    
 }
-
