@@ -89,8 +89,8 @@ void readCameraData
   printf("    Field Of View ........... : %f\n", cam->fov);
   printf("    Number of samples ........: %d \n", cam->samples_per_pixel);
   printf("    Sampling, 1 for stratified, 0 for random = %d\n", cam->strat);
-  printf("    Camera aperture = %d\n", cam->aperture);
-  printf("    Camera focal length = %d\n", cam->focal_length);
+  printf("    Camera aperture = %f\n", cam->aperture);
+  printf("    Camera focal length = %f\n", cam->focal_length);
 
   printf("\n");
 }
