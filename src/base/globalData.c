@@ -26,6 +26,8 @@ void initData
   globdat->spheres.count      = 0;
 
   globdat->sun.intensity      = 0.;
+
+  globdat->spotlights.count   = 0;
   
   globdat->bgimage.loadedFlag = 0;
 }

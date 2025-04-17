@@ -14,6 +14,16 @@ Sun
   Intensity 1.0
 End
 
+Spotlights
+2
+0 10 3 0.7
+1.2 3.0
+
+5 8 5 0.7
+1.2 2.5
+
+
+
 Materials
 
 End
