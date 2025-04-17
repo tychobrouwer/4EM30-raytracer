@@ -47,7 +47,12 @@ void readSpotlightData(FILE *fin, Spotlights *spotlights)
 
 //------------------------------------------------------------------------------
 //  addLight: Helper function to add a new spotlight
+//
+//  This function appends a spotlight to the spotlights list with the provided
+//  position, direction and intensity. Direction is assumed to be normalized.
+//  The function returns the index of the newly added spotlight.
 //------------------------------------------------------------------------------
+
 
 int addLight(Spotlights *spotlights, Vec3 coord, Vec3 dir, double intensity)
 {
