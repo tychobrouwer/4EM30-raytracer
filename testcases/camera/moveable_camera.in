@@ -1,13 +1,13 @@
-Filename demo_camera.bmp
+Filename demo_moveable_camera11.bmp
 
 Camera
-  Centre -10. 0. 2.
+  Centre 5. 2. 2.
   Rotation 0. 0. 0.
-  Fov    10.
-  Samples 400
+  Fov    25.
+  Samples 64
   Stratified 1
-  Aperture 0.06
-  Focallength 45.
+  Aperture 0.1
+  Focallength 150
 End
 
 Film
@@ -24,7 +24,7 @@ Materials
 End
 
 Spheres 2
-  0 00.0 0.5 1.2 0.75
+  0 18.0 0.5 1.2 0.75
   2 0.   0.  -10000. 10001.3
 
 Vertices 110

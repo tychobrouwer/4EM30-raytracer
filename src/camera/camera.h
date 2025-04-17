@@ -7,7 +7,7 @@
  *
  *  Versions:
  *  03/02/2020 | J.Remmers    | First version
- *             |              |
+ *  17/04/2025 | H.B.G. de Bruijn | updated code for assignment
  *----------------------------------------------------------------------------*/
 
 #ifndef CAMERA_CAMERA_H
@@ -25,11 +25,15 @@
 
 typedef struct 
 {
-  Vec3       origin;
+  Vec3       origin,tilt;
   double     fov;
+  int        samples_per_pixel;
+  bool       strat;
+  double     aperture;
+  double     focal_length;
+  double     u,v;
   double     y0,z0,dx;
 } CameraData;
-
 
 //------------------------------------------------------------------------------
 //  readCameraData: Reads the camera data from a file
@@ -79,8 +83,10 @@ void generateRay
   ( Ray*          ray ,
     int           ix  ,
     int           iy  ,
+    double        u   ,
+    double        v   ,
     CameraData*   cam );
-  
+
 #endif
 
 
