@@ -56,7 +56,7 @@ void trace(Globdat* globdat)
   int total = globdat->mesh.faceCount + globdat->spheres.count;
   buildBVH(bvh, globdat, 0, total);
 
-  int numThreads = 16;
+  int numThreads = 12;
   omp_set_num_threads(numThreads);
 
   Vec3 *offsets;

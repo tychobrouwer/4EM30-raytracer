@@ -7,8 +7,8 @@
 #include "../util/bvh.h"
 
 #define SHADOW_SAMPLES 3
-#define SHADOW_JITTER 0.05
-#define SHADOW_RADIUS 0.05 // Jitter radius for soft shadow sampling
+#define SHADOW_JITTER 0.005
+#define SHADOW_RADIUS 0.005 // Jitter radius for soft shadow sampling
 
 /// Checks if a point is in shadow relative to a light direction (e.g., sun)
 void createShadowRay(Globdat* globdat, BVH* bvh, Ray *shadowRay, Vec3* point, Vec3* lightDir, Vec3* normal);

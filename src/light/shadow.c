@@ -3,6 +3,15 @@
 #include <stdlib.h>
 // #include "spotlight.h"
 
+
+double clamp(double x, double minVal, double maxVal)
+{
+    if (x < minVal) return minVal;
+    if (x > maxVal) return maxVal;
+    return x;
+}
+
+
 void createShadowRay(Globdat* globdat, BVH* bvh, Ray *shadowRay, Vec3* point, Vec3* lightDir, Vec3* normal)
 {
     Vec3 shadowDir = *lightDir;
@@ -39,30 +48,25 @@ double computeSoftShadow(
 {
     Spotlight* spotlight = &globdat->spotlights.spotlight[lightIndex];
 
-    // printf(">>> computeSoftShadow called for spotlight %d\n", lightIndex);
-
-    // Direction from spotlight to hitpoint (used to simulate cone direction)
     Vec3 spotlightToHit = subtractVector(1.0, hitPoint, 1.0, &spotlight->coord);
     unit(&spotlightToHit);
 
-    // Spotlight aiming direction (e.g. at origin)
-    Vec3 target = {0.0, 0.0, 0.0};  // Aim at origin
+    Vec3 target = {0.0, 0.0, 0.0}; // or use actual spotlight direction if you support it
     Vec3 spotlightDir = subtractVector(1.0, &target, 1.0, &spotlight->coord);
     unit(&spotlightDir);
 
+    double angleCos = dotProduct(&spotlightDir, &spotlightToHit);
 
-    // printf("Spotlight %d direction: (%.2f, %.2f, %.2f)\n", lightIndex, spotlightDir.x, spotlightDir.y, spotlightDir.z);
-
-    // Angle cosine between spotlight direction and direction to hitpoint
-    double angleCos =  dotProduct(&spotlightDir, &spotlightToHit);
-
-    // Cutoff check
-    if (angleCos > cos(spotlight->cutoff))
+    if (spotlight->useCutoff && angleCos > spotlight->cosCutoff) {
         return 0.0;
-    
-          
-    double falloff = pow(angleCos, spotlight->falloffSharpness); // custom parameter
-    falloff = fmin(fmax(falloff, 0.0), 1.0);
+    }
+
+    double falloff = 1.0;
+    if (spotlight->useFalloff) {
+        double theta = angleCos;
+        double epsilon = 0.1; // softness of the edge
+        falloff = clamp((theta - spotlight->cosCutoff) / epsilon, 0.0, 1.0);
+    }
     
     double sampleLight = 0.0;
 

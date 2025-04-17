@@ -29,6 +29,9 @@
    double cutoff;
    double falloffSharpness;
    double intensity;
+   bool useCutoff;
+   bool useFalloff;
+   double cosCutoff;
  } Spotlight;
 
 

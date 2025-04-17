@@ -1,59 +1,89 @@
 /*------------------------------------------------------------------------------
- *  This file is part of a small RayTracer code, that is used in the course
- *  Scientific Computing for Mechanical Engineering (4EM30) at the Department
- *  Mechanical Engineering at Eindhoven University of Technology.
- *
- *  (c) 2020-2024 Joris Remmers, TU/e
- *
- *  Versions:
- *  03/02/2020 | J.Remmers    | First version
- *             |              |
+ *  Spotlight input reader for RayTracer (4EM30 - TU/e)
+ *  Author: Joris Remmers, optimized version 2025
  *----------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "spotlight.h"
-#define PI 3.14159265358979323846
-
-
-//------------------------------------------------------------------------------
-//  readspotlightData: Reads the spotlight data from a file
-//------------------------------------------------------------------------------
-
-void readSpotlightData(FILE *fin, Spotlights *spotlights)
-
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
+ #include <stdbool.h>
+ #include "spotlight.h"
+ 
+ #define PI 3.14159265358979323846
+ 
+ //------------------------------------------------------------------------------
+ //  readSpotlightData: Reads all spotlight definitions from the input file
+ //------------------------------------------------------------------------------
+ 
+ void readSpotlightData(FILE *fin, Spotlights *spotlights)
 {
-  int nLight = 0;
-  Vec3 coord;
-  double intensity, cutoff, falloffSharpness;
+    int useCutoff = 1;     // default to ON
+    int useFalloff = 1;
 
-  fscanf(fin, "%d", &nLight);
+    char label[32];
 
-  spotlights->spotlight = (Spotlight*)malloc(nLight * sizeof(Spotlight));
-  spotlights->count = 0;
+    // Read optional global flags
+    for (int i = 0; i < 2; ++i) {
+        if (fscanf(fin, "%s", label) != 1) break;
 
-  for (int iLight = 0; iLight < nLight; iLight++)
-  {
-    fscanf(fin, "%le %le %le %le", &coord.x, &coord.y, &coord.z, &intensity);
-    fscanf(fin, "%le %le", &cutoff, &falloffSharpness);
-    cutoff = cutoff * (PI / 180.0);  // convert degrees → radians
+        if (strcmp(label, "UseCutoff") == 0) {
+            fscanf(fin, "%d", &useCutoff);
+        } else if (strcmp(label, "UseFalloff") == 0) {
+            fscanf(fin, "%d", &useFalloff);
+        } else {
+            // Rewind label to parse number of lights next
+            fseek(fin, -strlen(label), SEEK_CUR);
+            break;
+        }
+    }
 
-    int id = addLight(spotlights, coord, intensity);
-    spotlights->spotlight[id].cutoff = cutoff;
-    spotlights->spotlight[id].falloffSharpness = falloffSharpness;
-  }
+    int nLight;
+    if (fscanf(fin, "%d", &nLight) != 1 || nLight <= 0) {
+        printf("Error: Invalid number of spotlights.\n");
+        return;
+    }
 
+    spotlights->spotlight = (Spotlight *)calloc(nLight, sizeof(Spotlight));
+    if (!spotlights->spotlight) {
+        printf("Error: Could not allocate memory for spotlights.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    spotlights->count = 0;
+
+    for (int i = 0; i < nLight; ++i) {
+        Vec3 coord;
+        double intensity, cutoffDeg, falloffSharpness;
+
+        if (fscanf(fin, "%le %le %le %le", &coord.x, &coord.y, &coord.z, &intensity) != 4 ||
+            fscanf(fin, "%le %le", &cutoffDeg, &falloffSharpness) != 2) {
+            printf("Error: Could not read spotlight parameters.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        double cutoffRad = cutoffDeg * (PI / 180.0);
+        
+
+        int id = addLight(spotlights, coord, intensity);
+        spotlights->spotlight[id].cutoff = cutoffRad;
+        spotlights->spotlight[id].cosCutoff = cos(cutoffRad);  // ← Precompute here
+        spotlights->spotlight[id].falloffSharpness = falloffSharpness;
+        spotlights->spotlight[id].useCutoff = (useCutoff != 0);
+        spotlights->spotlight[id].useFalloff = (useFalloff != 0);
+    }
 }
-
-int addLight(Spotlights* spotlights, Vec3 coord, double intensity)
-{
-    int spotlightID = spotlights->count;
-
-    spotlights->spotlight[spotlightID].coord = coord;
-    spotlights->spotlight[spotlightID].intensity = intensity;
-
-    spotlights->count++;
-    return spotlightID;
-}
-
+ 
+ //------------------------------------------------------------------------------
+ //  addLight: Helper function to add a new spotlight
+ //------------------------------------------------------------------------------
+ 
+ int addLight(Spotlights *spotlights, Vec3 coord, double intensity)
+ {
+     int id = spotlights->count;
+ 
+     spotlights->spotlight[id].coord = coord;
+     spotlights->spotlight[id].intensity = intensity;
+ 
+     spotlights->count++;
+     return id;
+ }
