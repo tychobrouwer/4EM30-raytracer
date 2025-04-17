@@ -78,6 +78,13 @@ void trace
     exit(1);
   }
 
+
+  Vec3 *offsets;
+  offsets = (Vec3 *)malloc(SHADOW_SAMPLES * sizeof(Vec3));
+  createRandomOffsets(offsets);
+
+
+
 #pragma omp parallel for collapse(2) schedule(dynamic, 16) private(ray, intersection, col)
   for (ix = 0; ix < globdat->film->width; ix++)
   {
@@ -129,23 +136,36 @@ void trace
             else
             {
               Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
-
-              Ray shadowRay;
-              createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
-
+              double totalLight = 0.0;
+      
+              // SUNLIGHT
+      
               Intersect shadowHit;
               resetIntersect(&shadowHit);
-
+      
+              Ray shadowRay;
+              createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
               traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
-
-              bool inShadow = (shadowHit.matID != -1);
-
-              double lightIntensity = dotProduct(&globdat->sun.d, &intersection.normal);
-              if (inShadow)
+      
+              if (shadowHit.matID == -1)
               {
-                lightIntensity = 0.0;
+                totalLight += fmax(dotProduct(&globdat->sun.d, &intersection.normal), 0.0);
               }
-              Color newCol = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
+      
+              // --SPOTLIGHTS--
+      
+              for (int iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
+              {
+                totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection, offsets, iSpot);
+      
+                // printf("Calling spotlight %d\n", iSpot);
+              }
+      
+              // Final lighting and color
+              double ambient = 0.05;
+              double finalLight = fmin(ambient + totalLight, 1.0);
+      
+              Color newCol = getColor(finalLight, &globdat->materials.mat[intersection.matID]);
 
               col.red += newCol.red;
               col.green += newCol.green;
@@ -203,23 +223,36 @@ void trace
           else
           {
             Vec3 hitPoint = addVector(1.0, &ray.o, intersection.t, &ray.d);
+            double totalLight = 0.0;
 
-            Ray shadowRay;
-            createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
+            // SUNLIGHT
 
             Intersect shadowHit;
             resetIntersect(&shadowHit);
 
+            Ray shadowRay;
+            createShadowRay(globdat, bvh, &shadowRay, &hitPoint, &globdat->sun.d, &intersection.normal);
             traverseBVH(bvh, globdat, &shadowRay, &shadowHit);
 
-            bool inShadow = (shadowHit.matID != -1);
-
-            double lightIntensity = dotProduct(&globdat->sun.d, &intersection.normal);
-            if (inShadow)
+            if (shadowHit.matID == -1)
             {
-              lightIntensity = 0.0;
+              totalLight += fmax(dotProduct(&globdat->sun.d, &intersection.normal), 0.0);
             }
-            Color newCol = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
+
+            // --SPOTLIGHTS--
+
+            for (int iSpot = 0; iSpot < globdat->spotlights.count; iSpot++)
+            {
+              totalLight += computeSoftShadow(&hitPoint, &intersection.normal, globdat, bvh, &intersection, offsets, iSpot);
+
+              // printf("Calling spotlight %d\n", iSpot);
+            }
+
+            // Final lighting and color
+            double ambient = 0.05;
+            double finalLight = fmin(ambient + totalLight, 1.0);
+
+            Color newCol = getColor(finalLight, &globdat->materials.mat[intersection.matID]);
             col.red += newCol.red;
             col.green += newCol.green;
             col.blue += newCol.blue;

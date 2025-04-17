@@ -47,7 +47,7 @@ double computeSoftShadow(
 
     Spotlight *spotlight = &globdat->spotlights.spotlight[lightIndex];
 
-    Vec3 hitToSpotlight = subtractVector(1.0, &spotlight->coord, 1.0, hitPoint);
+    Vec3 hitToSpotlight = addVector(1.0, &spotlight->coord, -1.0, hitPoint);
     unit(&hitToSpotlight);
 
     double angleCos = dotProduct(&spotlight->dir, &hitToSpotlight);
@@ -67,7 +67,7 @@ double computeSoftShadow(
     for (int s = 0; s < SHADOW_SAMPLES; s++)
     {
         Vec3 jitteredLightPos = addVector(1.0, &spotlight->coord, 1.0, &offsets[s]);
-        Vec3 lightDir = subtractVector(1.0, &jitteredLightPos, 1.0, hitPoint);
+        Vec3 lightDir = addVector(1.0, &jitteredLightPos, -1.0, hitPoint);
         unit(&lightDir);
 
         resetIntersect(&shadowHit);
