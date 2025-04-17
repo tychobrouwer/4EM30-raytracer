@@ -1,8 +1,13 @@
 Filename demo_group.bmp
 
 Camera
-  Centre 10. 0. 2.
-  Fov    25.
+  Centre -10. 0. 2.
+  Rotation 0. 0. 0.
+  Fov    10.
+  Samples 25
+  Stratified 1
+  Aperture 0.06
+  Focallength 45.
 End
 
 Film
@@ -11,7 +16,7 @@ End
 
 Sun
   Direction -10.0 -5.5 5.0;
-  Intensity 1.0
+  Intensity 0.5
 End
 
 Materials
