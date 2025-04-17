@@ -12,9 +12,92 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "../util/vector.h"
 #include "../util/film.h"
+#include "../util/bvh.h"
+#include "../shapes/shapes.h"
+#include "../shapes/spheres.h"
+#include "../util/vector.h"
+
+// Test computeFaceAABB
+void test_computeFaceAABB() {
+  Face face;
+  face.vertexCount = 3;
+  face.vertices[0] = (Vec3){0.0, 0.0, 0.0};
+  face.vertices[1] = (Vec3){1.0, 0.0, 0.0};
+  face.vertices[2] = (Vec3){0.0, 1.0, 0.0};
+
+  AABB aabb = computeFaceAABB(&face);
+
+  assert(aabb.min.x == 0.0 && aabb.min.y == 0.0 && aabb.min.z == 0.0);
+  assert(aabb.max.x == 1.0 && aabb.max.y == 1.0 && aabb.max.z == 0.0);
+
+  printf("test_computeFaceAABB passed.\n");
+}
+
+// Test computeSphereAABB
+void test_computeSphereAABB() {
+  Sphere sphere;
+  sphere.centre = (Vec3){1.0, 1.0, 1.0};
+  sphere.radius = 2.0;
+
+  AABB aabb = computeSphereAABB(&sphere);
+
+  assert(aabb.min.x == -1.0 && aabb.min.y == -1.0 && aabb.min.z == -1.0);
+  assert(aabb.max.x == 3.0 && aabb.max.y == 3.0 && aabb.max.z == 3.0);
+
+  printf("test_computeSphereAABB passed.\n");
+}
+
+// Test computeCentroidAABB
+void test_computeCentroidAABB() {
+  AABB aabb;
+  aabb.min = (Vec3){0.0, 0.0, 0.0};
+  aabb.max = (Vec3){2.0, 2.0, 2.0};
+
+  Vec3 centroid = computeCentroidAABB(&aabb);
+
+  assert(centroid.x == 1.0 && centroid.y == 1.0 && centroid.z == 1.0);
+
+  printf("test_computeCentroidAABB passed.\n");
+}
+
+// Test traverseBVH
+void test_traverseBVH() {
+  Globdat globdat;
+  BVH *bvh = (BVH *)malloc(sizeof(BVH));
+  bvh->nodeCount = 0;
+
+  globdat.spheres.count = 2;
+  globdat.spheres.sphere[0].centre = (Vec3){0.0, 0.0, 0.0};
+  globdat.spheres.sphere[0].radius = 1.0;
+  globdat.spheres.sphere[0].matID = 1;
+  globdat.spheres.sphere[1].centre = (Vec3){10.0, 10.0, 5.0};
+  globdat.spheres.sphere[1].radius = 1.0;
+  globdat.spheres.sphere[1].matID = 2;
+  globdat.mesh.faceCount = 0;
+
+  buildBVH(bvh, &globdat, 0, globdat.spheres.count);
+
+  assert(bvh->nodeCount == 1);
+
+  Ray ray;
+  ray.o = (Vec3){0.0, 0.0, 5.0};
+  ray.d = (Vec3){0.0, 0.0, -1.0};
+  unit(&ray.d);
+
+  Intersect intersection;
+  resetIntersect(&intersection);
+
+  traverseBVH(bvh, &globdat, &ray, &intersection);
+
+  assert(intersection.matID == 1);
+  assert(intersection.t == 4.0);
+
+  printf("test_traverseBVH passed.\n");
+}
 
 int main( void )
 
@@ -87,5 +170,10 @@ int main( void )
 
   saveToBitmap( film , imageFileName);
 
-  printf("Image generated!!");
+  test_computeFaceAABB();
+  test_computeSphereAABB();
+  test_computeCentroidAABB();
+  test_traverseBVH();
+
+  printf("Image generated!!\n");
 }
