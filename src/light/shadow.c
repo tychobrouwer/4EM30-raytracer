@@ -3,6 +3,12 @@
 #include <stdlib.h>
 // #include "spotlight.h"
 
+
+//------------------------------------------------------------------------------
+//  clamp: Clamps a value between a minimum and maximum
+//------------------------------------------------------------------------------
+
+
 double clamp(double x, double minVal, double maxVal)
 {
     if (x < minVal)
@@ -11,6 +17,10 @@ double clamp(double x, double minVal, double maxVal)
         return maxVal;
     return x;
 }
+
+//------------------------------------------------------------------------------
+//  clamp: Clamps a value between a minimum and maximum
+//------------------------------------------------------------------------------
 
 void createShadowRay(Globdat *globdat, BVH *bvh, Ray *shadowRay, Vec3 *point, Vec3 *lightDir, Vec3 *normal)
 {
@@ -24,6 +34,11 @@ void createShadowRay(Globdat *globdat, BVH *bvh, Ray *shadowRay, Vec3 *point, Ve
     shadowRay->d = shadowDir;
 }
 
+//------------------------------------------------------------------------------
+//  clamp: Clamps a value between a minimum and maximum
+//------------------------------------------------------------------------------
+
+
 void createRandomOffsets(Vec3 *offsets)
 {
     for (int i = 0; i < SHADOW_SAMPLES; i++)
@@ -33,6 +48,14 @@ void createRandomOffsets(Vec3 *offsets)
         offsets[i].z = SHADOW_RADIUS * ((double)rand() / RAND_MAX - 0.5);
     }
 }
+
+//------------------------------------------------------------------------------
+//  computeSoftShadow: Computes the soft shadow contribution from a spotlight
+//
+//  This function casts multiple jittered shadow rays from the hit point towards
+//  the spotlight. It uses angular falloff to model the cone shape of the spotlight,
+//  and accumulates light based on how many rays are not blocked.
+//------------------------------------------------------------------------------
 
 double computeSoftShadow(
     Vec3 *hitPoint,

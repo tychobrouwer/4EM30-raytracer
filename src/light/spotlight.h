@@ -22,7 +22,6 @@
  //  Declaration of the Spotlight type (a spotlight)
  //------------------------------------------------------------------------------
  
- 
  typedef struct 
  {
    Vec3 coord;
@@ -33,7 +32,9 @@
    double cosCutoff;
  } Spotlight;
 
-
+ //------------------------------------------------------------------------------
+ //  Declaration of the Spotlights type (for count calculation)
+ //------------------------------------------------------------------------------
 
  typedef struct 
  {
@@ -54,6 +55,20 @@
  
  
  void readSpotlightData( FILE* fin, Spotlights *spotlights );
+
+ //------------------------------------------------------------------------------
+ //  addLight: Adds a spotlight to the Spotlights array with given parameters
+ //
+ //  Arguments:
+ //      spotlights        : Pointer to the Spotlights struct where the light will be added
+ //      coord             : The position of the spotlight (Vec3)
+ //      dir               : The direction the spotlight is pointing (Vec3)
+ //      intensity         : The intensity of the spotlight
+ //
+ //  Return:
+ //      int               : The new total count of spotlights after adding the new one
+ //------------------------------------------------------------------------------
+
  int addLight(Spotlights* spotlights, Vec3 coord, Vec3 dir, double intensity);
 
   #endif
