@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <omp.h>
+#include <assert.h>
 #include "trace.h"
 #include "../camera/camera.h"
 #include "../materials/materials.h"
@@ -112,7 +113,7 @@ void trace
                 int jx, jy;
 
                 mapRayToBGCoordinates(&jx, &jy, ray, globdat);
-                // adds the color for every cycle
+
                 Color bgCol = getBGImagePixelValue(&globdat->bgimage, jx, jy);
                 col.red += bgCol.red;
                 col.green += bgCol.green;
@@ -120,9 +121,9 @@ void trace
               }
               else
               {
-                col.red = bgcol.red * spp;
-                col.green = bgcol.green * spp;
-                col.blue = bgcol.blue * spp;
+                col.red += bgcol.red;
+                col.green += bgcol.green;
+                col.blue += bgcol.blue;
               }
             }
             else
@@ -139,24 +140,25 @@ void trace
 
               bool inShadow = (shadowHit.matID != -1);
 
-              double lightIntensity = dotProduct(&globdat->sun.d, &intersection.normal) * spp;
+              double lightIntensity = dotProduct(&globdat->sun.d, &intersection.normal);
               if (inShadow)
               {
                 lightIntensity = 0.0;
               }
-              Color col2 = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
-              col.red += col2.red;
-              col.green += col2.green;
-              col.blue += col2.blue;
+              Color newCol = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
+
+              col.red += newCol.red;
+              col.green += newCol.green;
+              col.blue += newCol.blue;
             }
           }
-          // divides the color by the number of samples per pixel, to get the real color.
-          col.red /= spp;
-          col.green /= spp;
-          col.blue /= spp;
-
-          storePixelRGB(globdat->film, ix, iy, &col);
         }
+
+        col.red /= spp;
+        col.green /= spp;
+        col.blue /= spp;
+
+        storePixelRGB(globdat->film, ix, iy, &col);
       }
       else
       {
@@ -193,9 +195,9 @@ void trace
             }
             else
             {
-              col.red += bgcol.red * spp;
-              col.green += bgcol.green * spp;
-              col.blue += bgcol.blue * spp;
+              col.red += bgcol.red;
+              col.green += bgcol.green;
+              col.blue += bgcol.blue;
             }
           }
           else
@@ -212,23 +214,23 @@ void trace
 
             bool inShadow = (shadowHit.matID != -1);
 
-            double lightIntensity = dotProduct(&globdat->sun.d, &intersection.normal) * spp;
+            double lightIntensity = dotProduct(&globdat->sun.d, &intersection.normal);
             if (inShadow)
             {
               lightIntensity = 0.0;
             }
-            Color col2 = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
-            col.red += col2.red;
-            col.green += col2.green;
-            col.blue += col2.blue;
+            Color newCol = getColor(lightIntensity, &globdat->materials.mat[intersection.matID]);
+            col.red += newCol.red;
+            col.green += newCol.green;
+            col.blue += newCol.blue;
           }
-
-          col.red /= spp;
-          col.green /= spp;
-          col.blue /= spp;
-
-          storePixelRGB(globdat->film, ix, iy, &col);
         }
+
+        col.red /= spp;
+        col.green /= spp;
+        col.blue /= spp;
+
+        storePixelRGB(globdat->film, ix, iy, &col);
       }
     }
   }
