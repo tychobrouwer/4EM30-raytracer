@@ -1,9 +1,9 @@
 Filename demo_group.bmp
 
 Camera
-  Centre -10. 0. 2.
-  Rotation 0. 0. 0.
-  Fov    10.
+  Centre -15. 0.5 5.
+  Rotation 0. -4.5 0.
+  Fov    8.
   Samples 25
   Stratified 1
   Aperture 0.06
@@ -11,11 +11,11 @@ Camera
 End
 
 Film
-  Resolution 800 1200
+  Resolution 1000 1500
 End
 
 Sun
-  Direction -10.0 -5.5 5.0;
+  Direction 10.0 5.5 5.0;
   Intensity 1.0
 End
 
@@ -26,6 +26,15 @@ End
 Spheres 2
   0 18.0 0.5 1.2 0.75
   2 0.   0.  -10000. 10001.3
+
+Spotlights
+3
+15.0 2.0 2.0 0.0 0.0 -1.0 0.6
+50.0 0.1
+25.0 2.0 5.0 0.1 0.1 -1.0 0.2
+35.0 0.01
+18.5 1.0 3.0 0.0 -0.5 -1.0 1.0
+40.0 0.05
 
 Vertices 110
 20.000000 0.000000 1.300000 
