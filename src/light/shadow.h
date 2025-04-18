@@ -6,9 +6,9 @@
 #include "../util/ray.h"
 #include "../util/bvh.h"
 
-#define SHADOW_SAMPLES 3
-#define SHADOW_JITTER 0.005
-#define SHADOW_RADIUS 0.005 // Jitter radius for soft shadow sampling
+#define SHADOW_SAMPLES 5
+#define SHADOW_JITTER 0.05
+#define SHADOW_RADIUS 0.05 // Jitter radius for soft shadow sampling
 
 
 //------------------------------------------------------------------------------
