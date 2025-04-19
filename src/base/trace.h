@@ -14,6 +14,7 @@
 #define BASE_TRACE_H
 
 #include "globalData.h"
+#include "../util/bvh.h"
 
 
 //------------------------------------------------------------------------------
@@ -28,7 +29,26 @@ void trace
 
   ( Globdat*  globdat );
 
-#endif
+
+//------------------------------------------------------------------------------
+//  computeIntensity: Computes the intensity of a pixel from the shadows
+//
+//  Arguments:
+//      globdat      : Pointer to the global data
+//      bvh          : Pointer to the bvh data structure
+//      ray          : Ray structure
+//      intersection : Intersection point of the ray with the scene
+//
+//------------------------------------------------------------------------------
+
+
+double computeIntensity
+
+  ( Globdat* globdat,
+    BVH *bvh,
+    Vec3 *offsets,
+    Ray *ray,
+    Intersect *intersection );
 
 
 //------------------------------------------------------------------------------
@@ -50,3 +70,5 @@ void mapRayToBGCoordinates
     int* jy,
     Ray ray,
     Globdat* globdat );
+
+#endif

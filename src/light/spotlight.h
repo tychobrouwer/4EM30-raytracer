@@ -13,11 +13,9 @@
  #ifndef LIGHT_SPOTLIGHT_H
  #define LIGHT_SPOTLIGHT_H
  
- #include <stdbool.h>
  #include "../util/vector.h"
 
 
- 
  //------------------------------------------------------------------------------
  //  Declaration of the Spotlight type (a spotlight)
  //------------------------------------------------------------------------------
@@ -26,8 +24,7 @@
  {
    Vec3 coord;
    Vec3 dir;
-   double cutoff;
-   double falloffSharpness;
+   double sharpness;
    double intensity;
    double cosCutoff;
  } Spotlight;
@@ -42,7 +39,6 @@
      int count;
  } Spotlights;
 
- 
  
  //------------------------------------------------------------------------------
  //  readSpotlightData: Reads the spotlight data from a file
@@ -64,12 +60,14 @@
  //      coord             : The position of the spotlight (Vec3)
  //      dir               : The direction the spotlight is pointing (Vec3)
  //      intensity         : The intensity of the spotlight
+ //      cutoff            : Degrees of the cone
+ //      sharpness         : Sharpness of the shadow falloff
  //
  //  Return:
  //      int               : The new total count of spotlights after adding the new one
  //------------------------------------------------------------------------------
 
- int addLight(Spotlights* spotlights, Vec3 coord, Vec3 dir, double intensity);
+ int addLight(Spotlights* spotlights, Vec3 coord, Vec3 dir, double intensity, double cutoff, double sharpness);
 
   #endif
 

@@ -109,7 +109,7 @@ Color getColor
     
 {
   Color col;
-    
+
   col.red   = intensity * material->base.red;
   col.green = intensity * material->base.green;
   col.blue  = intensity * material->base.blue;    

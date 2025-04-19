@@ -35,7 +35,7 @@ void readVertexData
   fscanf( fin , "%d" , &nVer );
   
   mesh->vertices = (Vec3*)malloc(nVer * sizeof(Vec3));
-  mesh->vertexNormal = (Vec3*)malloc(nVer * sizeof(Vec3));
+  mesh->normals = (Vec3*)malloc(nVer * sizeof(Vec3));
 
   for( iVer = 0 ; iVer < nVer ; iVer++ )
   {
@@ -81,6 +81,8 @@ void readFaceData
     
     addFace( mesh , face , nVer , matID );
   }
+
+  addFaceNormals( mesh );
 
   printf("    Number of faces ......... : %d\n",nFac);
 }
@@ -164,11 +166,54 @@ int addFace
 
 
 //-----------------------------------------------------------------------------
+//  addFaceNormals: Adds face normals to the mesh
+//-----------------------------------------------------------------------------
+
+
+void addFaceNormals(Mesh* mesh) {
+  int vertexID;
+
+  for (int i = 0; i < mesh->vertexCount; i++)
+  {
+    mesh->normals[i] = (Vec3){0.0, 0.0, 0.0};
+  }
+
+  for (int i = 0; i < mesh->faceCount; i++)
+  {
+    int* vertexIDs = mesh->faces[i].vertexIDs;
+
+    Vec3 v1 = mesh->vertices[vertexIDs[0]];
+    Vec3 v2 = mesh->vertices[vertexIDs[1]];
+    Vec3 v3 = mesh->vertices[vertexIDs[2]];
+
+    Vec3 a = addVector(1.0, &v2, -1.0, &v1);
+    Vec3 b = addVector(1.0, &v3, -1.0, &v1);
+
+    Vec3 faceNormal;
+    crossProduct(&faceNormal, &a, &b);
+    unit(&faceNormal);
+
+    double weight = 0.5*length(&faceNormal);
+
+    for (int j = 0; j < mesh->faces[i].vertexCount; j++)
+    {
+      vertexID = vertexIDs[j];
+      mesh->normals[vertexID] = addVector(1.0, &mesh->normals[vertexID], weight, &faceNormal);
+    }
+  }
+
+  for (int i = 0; i < mesh->vertexCount; i++)
+  {
+    unit(&mesh->normals[i]);
+  }
+}
+
+//-----------------------------------------------------------------------------
 //  calcFaceIntersection: Calculates the intersection of a ray with a face
 //-----------------------------------------------------------------------------
 
 
-bool calcFaceIntersection
+int calcFaceIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
@@ -177,17 +222,19 @@ bool calcFaceIntersection
     int           iShp      )
 
 {
-  bool tlabel;
+  int* vertexIDs = mesh->faces[iShp].vertexIDs;
+  Vec3 normals[3];
+  normals[0] = mesh->normals[vertexIDs[0]];
+  normals[1] = mesh->normals[vertexIDs[1]];
+  normals[2] = mesh->normals[vertexIDs[2]];
+  
   if ( face->vertexCount == 3 )
   {
-    tlabel = false;
-    return calcTriangleIntersection( intersect , ray , face, mesh, iShp, tlabel);
+    return calcTriangleIntersection( intersect , ray , face, normals, mesh);
   }
   else
   {
-    tlabel = false;
     Face triaFace;
-    bool flag;
 
     triaFace.matID       = face->matID;
     triaFace.vertexCount = 3;
@@ -196,24 +243,25 @@ bool calcFaceIntersection
     triaFace.vertices[1]  = face->vertices[1];
     triaFace.vertices[2]  = face->vertices[2];
 
-    flag = calcTriangleIntersection( intersect , ray , &triaFace, mesh, iShp, tlabel);
-
-    if (flag)
+    if (calcTriangleIntersection(intersect, ray, &triaFace, normals, mesh))
     {
-      return true;
+      return 1;
     }
     else
     {
-      tlabel = true;
-      triaFace.vertices[0]  = face->vertices[0];
-      triaFace.vertices[1]  = face->vertices[2];
-      triaFace.vertices[2]  = face->vertices[3];
+      triaFace.vertices[0] = face->vertices[0];
+      triaFace.vertices[1] = face->vertices[2];
+      triaFace.vertices[2] = face->vertices[3];
+
+      normals[0] = mesh->normals[vertexIDs[0]];
+      normals[1] = mesh->normals[vertexIDs[2]];
+      normals[2] = mesh->normals[vertexIDs[3]];
       
-      return calcTriangleIntersection( intersect , ray , &triaFace, mesh, iShp, tlabel);
+      return calcTriangleIntersection( intersect , ray , &triaFace, normals, mesh);
     }
   }
 
-  return false;
+  return 0;
 }
 
 
@@ -224,14 +272,13 @@ bool calcFaceIntersection
 //-----------------------------------------------------------------------------
 
 
-bool calcTriangleIntersection
+int calcTriangleIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
     Face*         face      ,
-    Mesh*         mesh      ,
-    int           iShp      ,
-    bool          tlabel    )
+    Vec3*         normals   ,
+    Mesh*         mesh      )
 
 {
   Vec3 p0t,p1t,p2t,d;
@@ -277,14 +324,14 @@ bool calcTriangleIntersection
 
   if ( ( e0<0 || e1<0 || e2<0 ) && ( e0>0 || e1>0 || e2>0 ) )
   {
-    return false;
+    return 0;
   }
   
   double det = e0 + e1 + e2;
 
   if ( det == 0 )
   {
-    return false;
+    return 0;
   }
   
   p0t.z *= sz;
@@ -295,44 +342,27 @@ bool calcTriangleIntersection
 
   if( det < 0 && ( tScaled >= 0 || tScaled < intersect->t*det ) )
   {
-    return false;
+    return 0;
   }
   else if( det > 0 && ( tScaled <= 0 || tScaled > intersect->t*det ) )
   {
-    return false;
+    return 0;
   }
 
   intersect->t  = tScaled / det;
-
   intersect->matID = face->matID;
 
-  Vec3 Vn1, Vn2, Vn3;
+  double a = e0 / det;
+  double b = e1 / det;
+  double c = 1.0 - a - b;
 
-  if (tlabel)
-  {
-    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
-    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[3]];
-  }
-  else if(!tlabel)
-  {
-    Vn1 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[0]];
-    Vn2 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[1]];
-    Vn3 = mesh->vertexNormal[mesh->faces[iShp].vertexIDs[2]];
-  }
-  fflush(stdout);
-
-  float a = e0 / det;
-  float b = e1 / det;
-  float c = 1.0 - a - b;
-
-  intersect->normal.x = a * Vn1.x + b * Vn2.x + c * Vn3.x;
-  intersect->normal.y = a * Vn1.y + b * Vn2.y + c * Vn3.y;
-  intersect->normal.z = a * Vn1.z + b * Vn2.z + c * Vn3.z;
+  intersect->normal.x = a * normals[0].x + b * normals[1].x + c * normals[2].x;
+  intersect->normal.y = a * normals[0].y + b * normals[1].y + c * normals[2].y;
+  intersect->normal.z = a * normals[0].z + b * normals[1].z + c * normals[2].z;
 
   unit(&intersect->normal);
 
-  return true;
+  return 1;
 }
 
    

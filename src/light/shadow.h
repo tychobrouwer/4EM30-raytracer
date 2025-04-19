@@ -71,12 +71,12 @@ void createRandomOffsets(Vec3* offsets);
 
 
 double computeSoftShadow(
-    Vec3* hitPoint,
-    Vec3* normal,
     Globdat* globdat,
     BVH* bvh,
-    Intersect* intersection,
     Vec3* offsets,
+    Vec3* hitPoint,
+    Vec3* normal,
+    Intersect* intersection,
     int lightIndex
 );
 

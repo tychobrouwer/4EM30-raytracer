@@ -50,5 +50,5 @@ void readSunData
   sun->d = multiplyVector( sun->intensity , &sun->d );
 
   printf("  SUN\n");
-  printf("    Direction ............... : %f %f %f \n",sun->d.x,sun->d.y,sun->d.z);
+  printf("    Direction ............... : %f %f %f \n\n",sun->d.x,sun->d.y,sun->d.z);
 }

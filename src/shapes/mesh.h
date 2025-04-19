@@ -15,7 +15,6 @@
 #ifndef SHAPES_MESH_H
 #define SHAPES_MESH_H
 
-#include <stdbool.h>
 #include "../util/vector.h"
 #include "../util/ray.h"
 
@@ -54,8 +53,8 @@ typedef struct
 typedef struct
 {
   Vec3       *vertices;
+  Vec3       *normals;
   FaceData   *faces;
-  Vec3       *vertexNormal;
   
   int        vertexCount;
   int        faceCount;
@@ -132,6 +131,19 @@ int addVertex
 
 
 //------------------------------------------------------------------------------
+//  addFaceNormals: Adds the face normals to the mesh
+//
+//  Arguments:
+//      mesh    : Pointer to the mesh
+//
+//------------------------------------------------------------------------------
+
+
+void addFaceNormals
+  ( Mesh* mesh );
+
+
+//------------------------------------------------------------------------------
 //  addFace: Adds a face to the mesh
 //
 //  Arguments:
@@ -168,7 +180,7 @@ int addFace
 //------------------------------------------------------------------------------
 
 
-bool calcFaceIntersection
+int calcFaceIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
@@ -192,16 +204,15 @@ bool calcFaceIntersection
 //------------------------------------------------------------------------------
 
 
-bool calcTriangleIntersection
+int calcTriangleIntersection
 
   ( Intersect*    intersect ,
     Ray*          ray       ,
     Face*         face      ,
-    Mesh*         mesh      ,
-    int           iShp      ,
-    bool          tlabel    );
-    
-    
+    Vec3*         normals   ,
+    Mesh*         mesh      );
+
+
 //------------------------------------------------------------------------------
 //  freeMesh: Frees the memory of the mesh
 //
@@ -209,12 +220,12 @@ bool calcTriangleIntersection
 //      mesh    : Pointer to the mesh
 //
 //------------------------------------------------------------------------------    
-    
-    
+
+
 void freeMesh
 
   ( Mesh*         mesh );
-    
+
 
 #endif
 

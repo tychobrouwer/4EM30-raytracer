@@ -4,9 +4,7 @@
  *----------------------------------------------------------------------------*/
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include "spotlight.h"
 
 #define PI 3.14159265358979323846
@@ -17,50 +15,46 @@
 
 void readSpotlightData(FILE *fin, Spotlights *spotlights)
 {
-    char label[32];
+  char label[32];
 
-    int nLight;
-    fscanf(fin, "%d", &nLight);
+  int nLight;
+  fscanf(fin, "%d", &nLight);
+  
+  spotlights->spotlight = (Spotlight *)malloc(sizeof(Spotlight) * nLight);
+  spotlights->count = 0;
 
-    spotlights->spotlight = (Spotlight *)malloc(sizeof(Spotlight) * nLight);
-    spotlights->count = 0;
+  for (int i = 0; i < nLight; ++i)
+  {
+    Vec3 coord;
+    Vec3 dir;
+    double intensity, cutoffDeg, sharpness;
 
-    for (int i = 0; i < nLight; ++i)
-    {
-        Vec3 coord;
-        Vec3 dir;
-        double intensity, cutoffDeg, falloffSharpness;
+    fscanf(fin, "%le %le %le %le %le %le %le %le %le", &coord.x, &coord.y, &coord.z, &dir.x, &dir.y, &dir.z, &intensity, &cutoffDeg, &sharpness);
 
-        fscanf(fin, "%le %le %le %le %le %le %le", &coord.x, &coord.y, &coord.z, &dir.x, &dir.y, &dir.z, &intensity);
-        fscanf(fin, "%le %le", &cutoffDeg, &falloffSharpness);
+    unit(&dir);
 
-        double cutoffRad = cutoffDeg * (PI / 180.0);
+    int id = addLight(spotlights, coord, dir, intensity, cutoffDeg, sharpness);
+  }
 
-        unit(&dir);
-
-        int id = addLight(spotlights, coord, dir, intensity);
-        spotlights->spotlight[id].cutoff = cutoffRad;
-        spotlights->spotlight[id].cosCutoff = cos(cutoffRad);
-        spotlights->spotlight[id].falloffSharpness = falloffSharpness;
-    }
+  printf("    Number of lights ........ : %d\n",nLight);
 }
 
 //------------------------------------------------------------------------------
 //  addLight: Helper function to add a new spotlight
-//
-//  This function appends a spotlight to the spotlights list with the provided
-//  position, direction and intensity. Direction is assumed to be normalized.
-//  The function returns the index of the newly added spotlight.
 //------------------------------------------------------------------------------
 
 
-int addLight(Spotlights *spotlights, Vec3 coord, Vec3 dir, double intensity)
+int addLight(Spotlights *spotlights, Vec3 coord, Vec3 dir, double intensity, double cutoffDeg, double sharpness)
 {
     int id = spotlights->count;
 
-    spotlights->spotlight[id].coord = coord;
+    double cutoffRad = cutoffDeg * (PI / 180.0);
+    
+  spotlights->spotlight[id].coord = coord;
     spotlights->spotlight[id].dir = dir;
     spotlights->spotlight[id].intensity = intensity;
+    spotlights->spotlight[id].cosCutoff = cos(cutoffRad);
+    spotlights->spotlight[id].sharpness = sharpness;
 
     spotlights->count++;
     return id;

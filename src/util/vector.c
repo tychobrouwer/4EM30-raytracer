@@ -19,7 +19,7 @@
 //------------------------------------------------------------------------------
 
 
-double unit
+inline double unit
 
   ( Vec3*  v )
 
@@ -40,7 +40,7 @@ double unit
 //------------------------------------------------------------------------------
 
 
-double length
+inline double length
 
   ( Vec3*  v )
 
@@ -54,7 +54,7 @@ double length
 //------------------------------------------------------------------------------
 
 
-double dotProduct
+inline double dotProduct
 
   ( Vec3*  a ,
     Vec3*  b )
@@ -69,7 +69,7 @@ double dotProduct
 //------------------------------------------------------------------------------
 
 
-void crossProduct
+inline void crossProduct
 
   ( Vec3*    c ,
     Vec3*    a ,
@@ -87,7 +87,7 @@ void crossProduct
 //------------------------------------------------------------------------------
 
 
-Vec3 multiplyVector
+inline Vec3 multiplyVector
 
   ( double   factor ,
     Vec3*    v      )
@@ -108,7 +108,7 @@ Vec3 multiplyVector
 //------------------------------------------------------------------------------
 
 
-Vec3 addVector
+inline Vec3 addVector
 
   ( double  fa ,
     Vec3*   a  ,
@@ -130,7 +130,7 @@ Vec3 addVector
 //------------------------------------------------------------------------------
 
 
-Vec3 minVector
+inline Vec3 minVector
 
   ( double  fa ,
     Vec3*   a  ,
@@ -150,7 +150,7 @@ Vec3 minVector
 //------------------------------------------------------------------------------
 
 
-Vec3 maxVector
+inline Vec3 maxVector
 
   ( double fa ,
     Vec3*  a  ,
@@ -171,7 +171,7 @@ Vec3 maxVector
 //------------------------------------------------------------------------------
 
 
-int maxDimension
+inline int maxDimension
 
   ( Vec3*   a )
 

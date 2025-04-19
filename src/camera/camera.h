@@ -28,7 +28,7 @@ typedef struct
   Vec3       origin,tilt;
   double     fov;
   int        samples_per_pixel;
-  bool       strat;
+  int        strat;
   double     aperture;
   double     focal_length;
   double     u,v;
@@ -78,7 +78,7 @@ void initialiseCamera
 //------------------------------------------------------------------------------
 
 
-void generateRay
+void generateCameraRay
 
   ( Ray*          ray ,
     int           ix  ,

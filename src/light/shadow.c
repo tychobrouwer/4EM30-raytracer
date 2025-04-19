@@ -1,41 +1,25 @@
 #include "shadow.h"
 #include <math.h>
 #include <stdlib.h>
-// #include "spotlight.h"
 
 
 //------------------------------------------------------------------------------
-//  clamp: Clamps a value between a minimum and maximum
-//------------------------------------------------------------------------------
-
-
-double clamp(double x, double minVal, double maxVal)
-{
-    if (x < minVal)
-        return minVal;
-    if (x > maxVal)
-        return maxVal;
-    return x;
-}
-
-//------------------------------------------------------------------------------
-//  clamp: Clamps a value between a minimum and maximum
+//  createShadowRay: Create shadow ray from light 
 //------------------------------------------------------------------------------
 
 void createShadowRay(Globdat *globdat, BVH *bvh, Ray *shadowRay, Vec3 *point, Vec3 *lightDir, Vec3 *normal)
 {
-    Vec3 shadowDir = *lightDir;
-    unit(&shadowDir);
+    unit(lightDir);
 
     Vec3 bias = multiplyVector(0.001, normal);
     Vec3 shadowOrigin = addVector(1.0, point, 1.0, &bias);
 
     shadowRay->o = shadowOrigin;
-    shadowRay->d = shadowDir;
+    shadowRay->d = *lightDir;
 }
 
 //------------------------------------------------------------------------------
-//  clamp: Clamps a value between a minimum and maximum
+//  createRandomOffsets: Create random offsets for shadow sampling
 //------------------------------------------------------------------------------
 
 
@@ -51,19 +35,15 @@ void createRandomOffsets(Vec3 *offsets)
 
 //------------------------------------------------------------------------------
 //  computeSoftShadow: Computes the soft shadow contribution from a spotlight
-//
-//  This function casts multiple jittered shadow rays from the hit point towards
-//  the spotlight. It uses angular falloff to model the cone shape of the spotlight,
-//  and accumulates light based on how many rays are not blocked.
 //------------------------------------------------------------------------------
 
 double computeSoftShadow(
-    Vec3 *hitPoint,
-    Vec3 *normal,
     Globdat *globdat,
     BVH *bvh,
-    Intersect *intersection,
     Vec3 *offsets,
+    Vec3 *hitPoint,
+    Vec3 *normal,
+    Intersect *intersection,
     int lightIndex)
 {
    
@@ -81,7 +61,7 @@ double computeSoftShadow(
     if (angleCos < spotlight->cosCutoff)
         return 0.0;
 
-    double falloff = clamp((angleCos - spotlight->cosCutoff) / spotlight->falloffSharpness, 0.0, 1.0);
+    double falloff = fmax(fmin((angleCos - spotlight->cosCutoff) / spotlight->sharpness, 0.0), 1.0);
 
     double sampleLight = 0.0;
     Ray shadowRay;

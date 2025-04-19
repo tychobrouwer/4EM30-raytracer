@@ -83,14 +83,13 @@ void readCameraData
   }
 
   printf("  CAMERA\n");
-  printf("    Location ................ : %f %f %f \n", cam->origin.x,
-         cam->origin.y, cam->origin.z);
+  printf("    Location ................ : %f %f %f \n", cam->origin.x, cam->origin.y, cam->origin.z);
   printf("    Rotation ................ : %f %f %f \n", cam->tilt.x, cam->tilt.y, cam->tilt.z);
-  printf("    Field Of View ........... : %f\n", cam->fov);
-  printf("    Number of samples ........: %d \n", cam->samples_per_pixel);
-  printf("    Sampling, 1 for stratified, 0 for random = %d\n", cam->strat);
-  printf("    Camera aperture = %f\n", cam->aperture);
-  printf("    Camera focal length = %f\n", cam->focal_length);
+  printf("    Field Of View ........... : %f \n", cam->fov);
+  printf("    Number of samples ....... : %d \n", cam->samples_per_pixel);
+  printf("    Stratified sampling ..... : %d \n", cam->strat);
+  printf("    Camera aperture ......... : %f \n", cam->aperture);
+  printf("    Camera focal length ..... : %f \n", cam->focal_length);
 
   printf("\n");
 }
@@ -121,7 +120,7 @@ void initialiseCamera
 //  generateRay: Generates a ray for a given pixel
 //------------------------------------------------------------------------------
 
-void generateRay
+void generateCameraRay
 
     (Ray *ray,
      int ix,

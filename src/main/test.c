@@ -17,7 +17,6 @@
 #include "../util/vector.h"
 #include "../util/film.h"
 #include "../util/bvh.h"
-#include "../shapes/shapes.h"
 #include "../shapes/spheres.h"
 #include "../util/vector.h"
 
